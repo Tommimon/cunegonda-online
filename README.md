@@ -1,2 +1,2 @@
 # cunegonda-online
- online card game
+ online card game for 4 players
