@@ -8,24 +8,27 @@
 *.EGG-INFO
 .*.cfg
 bin/
-build/
 develop-eggs/
 downloads/
 eggs/
 fake-eggs/
 parts/
-dist/
 var/
+
+#cartella di output per pyinstaller
+build/
+
+#cartella con gli zip da distribuire
+dist/
 
 #cartella per file personali
 private/
 
-#cartelle che usa pycharm
+#cartelle generata da pycharm
 .idea/
-__pycache__/
 
-#cartella di output per pyinstaller
-out/
+#cartelle generata da python
+__pycache__/
 
 #cartella per i file vecchi che non voglio cancellare
 old/
