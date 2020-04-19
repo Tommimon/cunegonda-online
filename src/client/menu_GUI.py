@@ -31,8 +31,8 @@ class MenuHUD:
         pg.display.update()  # Or pg.display.flip()
 
     def mouse_click(self, pos):
-        self.btn_quit.ceck_click(pos)
-        self.btn_connect.ceck_click(pos)
+        self.btn_quit.check_click(pos)
+        self.btn_connect.check_click(pos)
 
     @staticmethod
     def switch_to_game():  # imposta game come next schermata e chiude il menu

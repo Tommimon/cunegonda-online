@@ -1,10 +1,9 @@
 # si occupa della gestione delle regole e dei dati privati del server
 
-from comunication import *
 from server.global_var import *
 from replicated.game_state import *
 from server.player_private import *
-from deck import *
+from server.deck import *
 from threading import Timer
 
 # PARAMETRI

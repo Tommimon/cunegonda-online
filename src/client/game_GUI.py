@@ -1,6 +1,6 @@
 # gestisce tutta lagui del gioco: carte, bottoni e altro
 
-from client.card_HUD import *
+from client.card_GUI import *
 from client.button import *
 from client.global_var import *
 from replicated.game_state import *
@@ -126,9 +126,9 @@ class GameHUD:
             c.blit(self.screen)
 
     def mouse_click(self, pos):
-        self.btn_indietro.ceck_click(pos)
+        self.btn_indietro.check_click(pos)
         for carta in self.lista_carte_mano:
-            carta.ceck_click(pos)
+            carta.check_click(pos)
 
     @staticmethod
     def gioca_la_prima():

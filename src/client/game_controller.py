@@ -1,6 +1,6 @@
 # gestisce gli eventi di pygame per il gioco vero e proprio
 
-from client.game_HUD import *
+from client.game_GUI import *
 from comunication import *
 from replicated.game_state import *
 

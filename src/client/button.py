@@ -16,7 +16,7 @@ class Button(Text):
         self.rect = self.surface.get_rect()  # aggiorno il rect che identifica la parte cliccabile
         self.rect.topleft = self._pos
 
-    def ceck_click(self, mouse_pos):
+    def check_click(self, mouse_pos):
         if self.activated:
             if self.rect.collidepoint(mouse_pos):
                 self.action()

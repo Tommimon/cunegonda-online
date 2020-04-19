@@ -63,7 +63,7 @@ class CardHUD:
         if self.visible and not self.vuoto:
             screen.blit(self._immagine, self._pos)
 
-    def ceck_click(self, mouse_pos):
+    def check_click(self, mouse_pos):
         if self.activated and not self.vuoto:
             if self.rect.collidepoint(mouse_pos):
                 GlobalVar.player_controller.gioca_carta(self._carta)
