@@ -11,7 +11,7 @@ TIMEOUT = 0.2
 class GameController:
     def __init__(self):
         GlobalVar.player_controller = self
-        self.HUD = GameHUD()  # creo HUD e mi salvo una ref
+        self.GUI = GameGUI()  # creo HUD e mi salvo una ref
         self.socket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
         self.connettiti()
         self.clock = pg.time.Clock()  # inizializzo clock
@@ -22,14 +22,14 @@ class GameController:
             self.clock.tick(FPS)  # mi fa andare al giusto frame rate
             self.server_events()
             self.pygame_events()
-            self.HUD.display()
+            self.GUI.display()
 
     def pygame_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
             if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                self.HUD.mouse_click(event.pos)
+                self.GUI.mouse_click(event.pos)
 
     def server_events(self):
         recv_messaggi(self.socket)  # riempie la lista

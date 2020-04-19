@@ -38,13 +38,13 @@ class GameInstance:
                 GameInstance.game()
 
     @staticmethod
-    def menu():
+    def menu():  # crea i componenti principali per il menu
         print('opening menu...')
         controller = MenuController()  # si mette da solo in GlobalVar
         controller.loop()
 
     @staticmethod
-    def game():
+    def game():  # crea i componenti principali per il gioco
         print('opening game...')
         GlobalVar.game_state = GameState()
         GlobalVar.player_state = PlayerState()

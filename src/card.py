@@ -28,6 +28,6 @@ class Card:
     ASSO = 14
     VALORI = [DUE, TRE, QUATTRO, CINQUE, SEI, SETTE, OTTO, NOVE, DIECI, JACK, DONNA, RE, ASSO]
 
-    def __init__(self, seme, valore):
-        self.seme = seme
+    def __init__(self, valore=NESSUN_VALORE, seme=NESSUN_SEME):
         self.valore = valore
+        self.seme = seme

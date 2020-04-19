@@ -9,7 +9,7 @@ from replicated.game_state import *
 VUOTO = Card(Card.NESSUN_SEME, Card.NESSUN_VALORE)
 
 
-class GameHUD:
+class GameGUI:
     def __init__(self):
         GlobalVar.player_HUD = self
         self.screen = GlobalVar.screen  # mi salvo una ref allo screen
@@ -25,15 +25,15 @@ class GameHUD:
         self.punteggio_sinistra = Text('', (0, 25 * self.h_perc), text_color=ROSSO, bg_color=NERO)
         self.punteggio_alto = Text('', (40 * self.w_perc, 5 * self.h_perc), text_color=ROSSO, bg_color=NERO)
         self.punteggio_destra = Text('', (80 * self.w_perc, 25 * self.h_perc), text_color=ROSSO, bg_color=NERO)
-        self.carta_sinistra = CardHUD(VUOTO, (0, 40 * self.h_perc), (68, 100), activated=False)
-        self.carta_alto = CardHUD(VUOTO, (40 * self.w_perc, 20 * self.h_perc), (68, 100), activated=False)
-        self.carta_destra = CardHUD(VUOTO, (80 * self.w_perc, 40 * self.h_perc), (68, 100), activated=False)
+        self.carta_sinistra = CardGUI(VUOTO, (0, 40 * self.h_perc), (68, 100), activated=False)
+        self.carta_alto = CardGUI(VUOTO, (40 * self.w_perc, 20 * self.h_perc), (68, 100), activated=False)
+        self.carta_destra = CardGUI(VUOTO, (80 * self.w_perc, 40 * self.h_perc), (68, 100), activated=False)
 
         self.text_punteggio = Text('', (0, 70 * self.h_perc), text_color=VERDE, bg_color=NERO)
         self.punt_calcolato = True  # durante il passaggio_carte metto True a fine partita calcolo e metto False
         self.punteggio_mio = 0
         self.storico = []
-        self.carta_basso = CardHUD(VUOTO, (40 * self.w_perc, 50 * self.h_perc), (68, 100), activated=False)
+        self.carta_basso = CardGUI(VUOTO, (40 * self.w_perc, 50 * self.h_perc), (68, 100), activated=False)
         self.lista_carte_mano = []
         self.lista_mano = []
         self.btn_indietro = Button('<--', (0, 0), GlobalVar.player_controller.indietro, text_color=BIANCO, bg_color=BLU)
@@ -100,7 +100,7 @@ class GameHUD:
     def refresh_mano(self):
         x = 30
         for carta in self.lista_mano:
-            self.lista_carte_mano.append(CardHUD(carta, (x, 80 * self.h_perc), (68, 100)))
+            self.lista_carte_mano.append(CardGUI(carta, (x, 80 * self.h_perc), (68, 100)))
             x += 78
 
     def refresh_carte(self):

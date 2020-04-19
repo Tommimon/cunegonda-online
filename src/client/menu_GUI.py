@@ -4,7 +4,7 @@ from client.button import *
 from client.global_var import *
 
 
-class MenuHUD:
+class MenuGUI:
     def __init__(self):
         GlobalVar.player_HUD = self
         self.screen = GlobalVar.screen  # mi salvo una ref allo screen
@@ -14,7 +14,7 @@ class MenuHUD:
         self.titolo = Text('Main Menu', (0, 10 * self.h_perc), bg_color=NERO, text_color=BIANCO)
         self.btn_quit = Button('Quit', (0, 80 * self.h_perc), GlobalVar.player_controller.quit,
                                bg_color=ROSSO, text_color=BIANCO)
-        self.btn_connect = Button('Connect', (0, 20 * self.h_perc), MenuHUD.switch_to_game,
+        self.btn_connect = Button('Connect', (0, 20 * self.h_perc), MenuGUI.switch_to_game,
                                   bg_color=VERDE, text_color=BIANCO)
         self.centra_menu()
 

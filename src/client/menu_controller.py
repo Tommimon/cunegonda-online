@@ -8,7 +8,7 @@ FPS = 60  # Frames per second.
 class MenuController:
     def __init__(self):
         GlobalVar.player_controller = self
-        self.HUD = MenuHUD()  # creo HUD e mi salvo una ref
+        self.GUI = MenuGUI()  # creo HUD e mi salvo una ref
         self.clock = pg.time.Clock()  # inizializzo clock
         self.running = True
 
@@ -19,8 +19,8 @@ class MenuController:
                 if event.type == pg.QUIT:
                     self.quit()
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-                    self.HUD.mouse_click(event.pos)
-            self.HUD.display()
+                    self.GUI.mouse_click(event.pos)
+            self.GUI.display()
 
     def quit(self):
         self.running = False

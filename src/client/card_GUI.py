@@ -5,7 +5,7 @@ from card import *
 from client.global_var import *
 
 
-class CardHUD:
+class CardGUI:
     def __init__(self, carta, pos, dim, activated=True):
         self._pos = pos
         self.dim = dim
@@ -54,7 +54,7 @@ class CardHUD:
         # se la carta è cambiata o se non c'era proprio
         if self._carta is None or self._carta.valore != carta.valore or self._carta.seme != carta.seme:
             self._carta = carta
-            if not self.vuoto:
+            if not self.vuoto:  # nota che se la nuova è vuota aggiorno _carta ma non immagine e rect
                 self.get_immagine()
                 self.rect = self._immagine.get_rect()
                 self.rect.topleft = self._pos
