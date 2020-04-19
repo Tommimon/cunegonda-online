@@ -10,9 +10,9 @@ class Deck:
         self.crea_carte()
 
     def crea_carte(self):
-        for seme in Card.SEMI:  # per ogni seme
-            for val in Card.VALORI:  # per ogni valore
-                self.carte.append(Card(seme, val))  # creo una carta e la aggiungo alla lista
+        for val in Card.VALORI:  # per ogni valore
+            for seme in Card.SEMI:  # per ogni seme
+                self.carte.append(Card(val, seme))  # creo una carta e la aggiungo alla lista
 
     def mischia(self):
         rand.shuffle(self.carte)

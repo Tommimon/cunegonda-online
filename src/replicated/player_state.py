@@ -55,15 +55,15 @@ class PlayerState:
     def risolvi_messaggio(self, messaggio):  # legge i messaggi del server sul lato client
         nome_var = messaggio.get_campo('nome_variabile')
         if nome_var == 'mano':
-            new_carta = Card(messaggio.get_campo_int('seme'), messaggio.get_campo_int('valore'))
+            new_carta = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
             self.mano.append(new_carta)
             print('new_to_mano', new_carta.seme, new_carta.valore)
         elif nome_var == 'del_mano':
-            new_carta = Card(messaggio.get_campo_int('seme'), messaggio.get_campo_int('valore'))
+            new_carta = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
             self._del_from_mano(new_carta)
             print('del_from_mano', new_carta.seme, new_carta.valore)
         elif nome_var == 'scambiate':
-            new_carta = Card(messaggio.get_campo_int('seme'), messaggio.get_campo_int('valore'))
+            new_carta = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
             self.scambiate.append(new_carta)
             print('new_to_scambiate', new_carta.seme, new_carta.valore)
         elif nome_var == 'clear_scambiate':

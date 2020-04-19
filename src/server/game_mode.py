@@ -62,7 +62,7 @@ class GameMode:
             # metto nel player pubblico l'username che ho letto dal messaggio del client
             self.game_state.lista_player[index].set_rep_username(messaggio.get_campo('username'))
         elif messaggio.tipo == CARTA_TYPE:
-            carta = Card(messaggio.get_campo_int('seme'), messaggio.get_campo_int('valore'))
+            carta = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
             print('giocata', carta.seme, carta.valore)
             self.carta_client(giocatore, carta)
 
@@ -80,28 +80,34 @@ class GameMode:
                 return True
         return False
 
-    def carta_client(self, giocatore, carta):
+    def carta_client(self, giocatore, carta):  # controlla in che fase siamo e se si può adoperare la carta e poi fa
         if GameMode.possiede_carta(giocatore, carta):  # se possiede davvero questa carta
             if self.game_state.fase_gioco == PASSAGGIO_CARTE:  # se le stiamo passando la metto nelle scambiate
                 if len(giocatore.player_state.scambiate) < 3:  # se non ne ho già scambiate 3
-                    giocatore.player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
-                    giocatore.player_state.add_to_scambiate(carta)  # la metto in quelle scambiate
-                    self.ceck_fine_passaggio()
+                    self.metti_in_passate(giocatore, carta)
             elif self.game_state.fase_gioco == GIOCO and (not self.pausa):  # se stiamo giocando e non è pausa
                 index = self.lista_player.index(giocatore)
                 if index == self.game_state.turno:  # se è il suo turno
                     if (index == self.primo or (not GameMode.possiede_seme(giocatore, self.seme_giro))
                             or self.seme_giro == carta.seme):  # se è primo o non ha questo seme o è seme giusto
-                        giocatore.player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
-                        self.game_state.lista_player[index].set_rep_carta_gioc(carta)  # la metto nelle giocate
-                        self.questo_giro.append(carta)  # mi salvo le carte giocate nella gamemode
-                        if self.game_state.turno == self.primo:
-                            self.seme_giro = carta.seme  # il primo decide il seme del giro
-                        if self.game_state.turno == self.ultimo:
-                            self.risolvi_questo_giro()
-                        else:
-                            turno = (self.game_state.turno + 1) % 4
-                            self.game_state.set_rep_turno(turno)
+                        self.metti_in_giocata(index, carta)
+
+    def metti_in_giocata(self, index, carta):
+        self.lista_player[index].player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
+        self.game_state.lista_player[index].set_rep_carta_gioc(carta)  # la metto nelle giocate
+        self.questo_giro.append(carta)  # mi salvo le carte giocate nella gamemode
+        if self.game_state.turno == self.primo:
+            self.seme_giro = carta.seme  # il primo decide il seme del giro
+        if self.game_state.turno == self.ultimo:
+            self.risolvi_questo_giro()
+        else:
+            turno = (self.game_state.turno + 1) % 4
+            self.game_state.set_rep_turno(turno)
+
+    def metti_in_passate(self, giocatore, carta):
+        giocatore.player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
+        giocatore.player_state.add_to_scambiate(carta)  # la metto in quelle scambiate
+        self.ceck_fine_passaggio()
 
     def ceck_fine_passaggio(self):
         for gioc in self.lista_player:
@@ -119,13 +125,16 @@ class GameMode:
             self.game_state.set_rep_fase(GIOCO)
             state.clear_scambiate()  # tolgo tutte le scambiate
 
-    def risolvi_questo_giro(self):
+    def calcola_punteggio(self):
         punteggio = 10  # valore di base
         for carta in self.questo_giro:  # contro punti negativi
             if carta.seme == Card.CUORI:
                 punteggio -= carta.valore  # il valore della carta solo già i punti neg per i cuori
             elif carta.seme == Card.PICCHE and carta.valore == Card.DONNA:  # se è cuneconda
                 punteggio -= 26
+        return punteggio
+
+    def trova_vincitore(self):
         val_max = self.questo_giro[0].valore  # trovo carta vincente
         index_max = 0
         for carta in self.questo_giro:
@@ -135,6 +144,11 @@ class GameMode:
                     index_max = self.questo_giro.index(carta)
         # adesso index_max è il primo ma contato a partire dal primo attuale quindi è di quanto devo spostarmi
         vincitore = (self.primo + index_max) % 4
+        return vincitore
+
+    def risolvi_questo_giro(self):
+        punteggio = self.calcola_punteggio()
+        vincitore = self.trova_vincitore()
         print('punteggio: ' + str(punteggio) + ' a ' + str(vincitore))
         self.primo = vincitore
         self.ultimo = (self.primo - 1) % 4
@@ -154,9 +168,9 @@ class GameMode:
 
     def check_cappotto(self):
         for g_esaminato in self.lista_player:
-            if GameMode.ha_preso_carta(g_esaminato, Card(Card.PICCHE, Card.DONNA)):  # se ha cunegonda
+            if GameMode.ha_preso_carta(g_esaminato, Card(Card.DONNA, Card.PICCHE)):  # se ha cunegonda
                 for val in Card.VALORI:
-                    if not GameMode.ha_preso_carta(g_esaminato, Card(Card.CUORI, val)):  # manca un cuore
+                    if not GameMode.ha_preso_carta(g_esaminato, Card(val, Card.CUORI)):  # manca un cuore
                         return  # se quello che ha la cune non ha un cuore allora niente cappotto
                 # se arrivo qui allor aho cappotto quindi setto tutti a -20 tranne g a cui do 60
                 for g_da_cambiare in self.lista_player:
@@ -167,7 +181,7 @@ class GameMode:
 
     def fine_turno(self):
         for g in self.game_state.lista_player:  # svuoto giocate in ogni caso
-            g.set_rep_carta_gioc(Card(Card.NESSUN_SEME, Card.NESSUN_VALORE))
+            g.set_rep_carta_gioc(Card())
         if len(self.lista_player[0].player_state.mano) == 0:  # se un giocatore non ha carte (tutti le hanno finite)
             self.check_cappotto()
             for i in range(len(self.lista_player)):  # aggiorno punteggi totali per tutti

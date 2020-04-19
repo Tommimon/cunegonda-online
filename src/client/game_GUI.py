@@ -6,7 +6,7 @@ from client.global_var import *
 from replicated.game_state import *
 
 
-VUOTO = Card(Card.NESSUN_SEME, Card.NESSUN_VALORE)
+VUOTO = Card()  # corrisponde a carta vuota
 
 
 class GameGUI:
@@ -38,70 +38,62 @@ class GameGUI:
         self.lista_mano = []
         self.btn_indietro = Button('<--', (0, 0), GlobalVar.player_controller.indietro, text_color=BIANCO, bg_color=BLU)
 
-    def refresh(self):
+    def refresh_top(self):  # in base alla fase chiama tutte le cose da aggiornare
         n_partita = GlobalVar.game_state.cont_partita
         self.text_partita.set_text('Game ' + str(n_partita))
         fase = GlobalVar.game_state.fase_gioco
         if fase == ATTESA_GIOCATORI:  # testo top
             self.top_text.set_text('In attesa di altri giocatori')
         elif fase == PASSAGGIO_CARTE:
-            self.punt_calcolato = False  # a fine partita viene calcolato e messo true fino alla prox passaggio_carte
             self.top_text.set_text('Seleziona le carte da passare')
         elif fase == GIOCO:
-            turno = GlobalVar.game_state.turno  # prendo il numero del turno
-            if turno == GlobalVar.player_state.index:  # se tocca a questo stesso giocatore
-                self.top_text.set_text('Tocca a te')
-            else:
-                username = GlobalVar.game_state.lista_player[turno].username  # prendo il nome di chi deve giocare
-                self.top_text.set_text('Tocca a ' + username)  # scrivo a chi tocca
+            self.refresh_turno()
 
-        if fase != ATTESA_GIOCATORI:
-            index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
-            lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
-            if fase == FINE_PARTITA and not self.punt_calcolato:
-                self.punt_calcolato = True  # poi in passaggio_carte viene rimesso a False
-                punti = lista_player[index].punteggio_tot  # prendo il punteggio_tot dal game_state
-                delta = punti - self.punteggio_mio
-                self.punteggio_mio = punti  # aggiorno
-                self.storico.append(delta)  # aggiungo punti fatti in questa allo storico
-                self.top_text.set_text('Hai fatto ' + str(delta) + ' punti in questa partita')
-            stringa_punteggio = str(self.punteggio_mio) + ': '  # per mio punteggio
-            for i in range(len(self.storico)):
-                if i != 0:  # se non è primo
-                    stringa_punteggio += '/ '
-                stringa_punteggio += str(self.storico[i]) + ' '  # aggiungo pezzo allo storico
-            self.text_punteggio.set_text(stringa_punteggio)
-            self.punteggio_sinistra.set_text(str(lista_player[(index + 1) % 4].punteggio_tot))  # per altri
-            self.punteggio_alto.set_text(str(lista_player[(index + 2) % 4].punteggio_tot))
-            self.punteggio_destra.set_text(str(lista_player[(index + 3) % 4].punteggio_tot))
-            self.username_sinistra.set_text(lista_player[(index + 1) % 4].username)
-            self.username_alto.set_text(lista_player[(index + 2) % 4].username)
-            self.username_destra.set_text(lista_player[(index + 3) % 4].username)
-
-    def display(self):
-        self.refresh()
-        self.screen.fill(NERO)  # copro frame prec
-        self.top_text.blit(self.screen)
-        self.text_partita.blit(self.screen)
-        self.username_sinistra.blit(self.screen)
-        self.username_alto.blit(self.screen)
-        self.username_destra.blit(self.screen)
-        self.btn_indietro.blit(self.screen)
+    def calcola_storico(self):
+        index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
+        lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
         fase = GlobalVar.game_state.fase_gioco
-        if fase != ATTESA_GIOCATORI:
-            self.punteggio_sinistra.blit(self.screen)
-            self.punteggio_alto.blit(self.screen)
-            self.punteggio_destra.blit(self.screen)
-            self.text_punteggio.blit(self.screen)
-        if fase == PASSAGGIO_CARTE or fase == GIOCO:
-            self.display_carte()
-        pg.display.update()  # Or pg.display.flip()
+        if fase == FINE_PARTITA and not self.punt_calcolato:
+            self.punt_calcolato = True  # poi in passaggio_carte viene rimesso a False
+            punti = lista_player[index].punteggio_tot  # prendo il punteggio_tot dal game_state
+            delta = punti - self.punteggio_mio
+            self.punteggio_mio = punti  # aggiorno
+            self.storico.append(delta)  # aggiungo punti fatti in questa allo storico
+            self.top_text.set_text('Hai fatto ' + str(delta) + ' punti in questa partita')
+        elif fase == PASSAGGIO_CARTE:
+            self.punt_calcolato = False  # a fine partita viene calcolato e messo true fino alla prox passaggio_carte
 
-    def refresh_mano(self):
-        x = 30
-        for carta in self.lista_mano:
-            self.lista_carte_mano.append(CardGUI(carta, (x, 80 * self.h_perc), (68, 100)))
-            x += 78
+    def refresh_mio_punteggio(self):
+        self.calcola_storico()
+        stringa_punteggio = str(self.punteggio_mio) + ': '  # per mio punteggio
+        for i in range(len(self.storico)):
+            if i != 0:  # se non è primo
+                stringa_punteggio += '/ '
+            stringa_punteggio += str(self.storico[i]) + ' '  # aggiungo pezzo allo storico
+        self.text_punteggio.set_text(stringa_punteggio)
+
+    def refresh_punteggi(self):
+        index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
+        lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
+        self.refresh_mio_punteggio()
+        self.punteggio_sinistra.set_text(str(lista_player[(index + 1) % 4].punteggio_tot))  # per altri
+        self.punteggio_alto.set_text(str(lista_player[(index + 2) % 4].punteggio_tot))
+        self.punteggio_destra.set_text(str(lista_player[(index + 3) % 4].punteggio_tot))
+
+    def refresh_usernames(self):
+        index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
+        lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
+        self.username_sinistra.set_text(lista_player[(index + 1) % 4].username)
+        self.username_alto.set_text(lista_player[(index + 2) % 4].username)
+        self.username_destra.set_text(lista_player[(index + 3) % 4].username)
+
+    def refresh_turno(self):
+        turno = GlobalVar.game_state.turno  # prendo il numero del turno
+        if turno == GlobalVar.player_state.index:  # se tocca a questo stesso giocatore
+            self.top_text.set_text('Tocca a te')
+        else:
+            username = GlobalVar.game_state.lista_player[turno].username  # prendo il nome di chi deve giocare
+            self.top_text.set_text('Tocca a ' + username)  # scrivo a chi tocca
 
     def refresh_carte(self):
         index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
@@ -115,6 +107,42 @@ class GameGUI:
             self.lista_mano = new_mano
             self.lista_carte_mano = []
             self.refresh_mano()
+
+    def refresh_mano(self):
+        x = 30
+        for carta in self.lista_mano:
+            self.lista_carte_mano.append(CardGUI(carta, (x, 80 * self.h_perc), (68, 100)))
+            x += 78
+
+    def display(self):  # chiama tutte le cose da blittare
+        self.screen.fill(NERO)  # copro frame prec
+        self.display_top()
+        fase = GlobalVar.game_state.fase_gioco
+        if fase != ATTESA_GIOCATORI:
+            self.display_usernames()
+            self.display_punteggi()
+        if fase == PASSAGGIO_CARTE or fase == GIOCO:
+            self.display_carte()
+        pg.display.update()  # Or pg.display.flip()
+
+    def display_top(self):
+        self.refresh_top()
+        self.btn_indietro.blit(self.screen)
+        self.top_text.blit(self.screen)
+        self.text_partita.blit(self.screen)
+
+    def display_usernames(self):
+        self.refresh_usernames()
+        self.username_sinistra.blit(self.screen)
+        self.username_alto.blit(self.screen)
+        self.username_destra.blit(self.screen)
+
+    def display_punteggi(self):
+        self.refresh_punteggi()
+        self.punteggio_sinistra.blit(self.screen)
+        self.punteggio_alto.blit(self.screen)
+        self.punteggio_destra.blit(self.screen)
+        self.text_punteggio.blit(self.screen)
 
     def display_carte(self):
         self.refresh_carte()

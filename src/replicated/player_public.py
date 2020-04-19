@@ -10,8 +10,7 @@ class PlayerPublic:
         self.index = index
         self.username = ''
         self.punteggio_tot = 0
-        vuoto = Card(Card.NESSUN_SEME, Card.NESSUN_VALORE)
-        self.carta_giocata = vuoto
+        self.carta_giocata = Card()
 
     def _replicate_var(self, nome_var, valore):  # si occupa di dire a tutti il cambiamento
         mess = Messaggio()
@@ -60,5 +59,5 @@ class PlayerPublic:
             print('set punteggio_tot', self.punteggio_tot)
         elif nome_var == 'carta_giocata':
             # ricompongo la carta dal messaggio
-            self.carta_giocata = Card(messaggio.get_campo_int('seme'), messaggio.get_campo_int('valore'))
+            self.carta_giocata = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
             print('set carta_giocata', self.carta_giocata.seme, self.carta_giocata.valore)
