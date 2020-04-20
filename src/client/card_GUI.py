@@ -3,6 +3,7 @@
 import pygame as pg
 from card import *
 from client.global_var import *
+from pathlib import Path
 
 
 class CardGUI:
@@ -42,7 +43,8 @@ class CardGUI:
     def get_immagine(self):
         if not self.vuoto:
             file_name = self.nome_carta()
-            picture = pg.image.load('.\\res\\' + file_name)
+            path = Path('./res/') / file_name
+            picture = pg.image.load(path)
             picture = pg.transform.scale(picture, self.dim)
             self._immagine = picture
 
