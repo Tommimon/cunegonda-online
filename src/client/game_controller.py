@@ -51,11 +51,7 @@ class GameController:
             GlobalVar.game_state.replicator.sockets = [self.socket]
             GlobalVar.player_state.replicator.sockets = [self.socket]
             self.socket.settimeout(TIMEOUT)
-            mess = Messaggio()
-            mess.tipo = USERNAME_TYPE
-            mess.add_campo('username', GlobalVar.game_instance.username)
-            mess.safe_send(self.socket)
-        except:
+        except:  # voglio che qualunque cosa succeda torni al menu e non crashi
             self.indietro()
 
     def gioca_carta(self, carta):

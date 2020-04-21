@@ -5,6 +5,7 @@ from replicated.game_state import *
 from server.player_private import *
 from server.deck import *
 from threading import Timer
+from tcp_basics import safe_recv_var
 
 # PARAMETRI
 TIMEOUT = 0.2
@@ -15,6 +16,9 @@ class GameMode:
         GlobalVar.game_mode = self
         self.game_state = GlobalVar.game_state
         self.lista_player = []
+        self.replicators = [self.game_state.replicator]  # metto il replicator del game state
+        for p in self.game_state.lista_player:
+            self.replicators.append(p.replicator)  # aggiungo tutti i replicator dei public player
         self.mazzo = Deck()
         self.server_socket = None
         self.running = True
@@ -30,9 +34,9 @@ class GameMode:
             socket, address = self.server_socket.accept()
             socket.settimeout(TIMEOUT)
             self.game_state.replicator.sockets.append(socket)  # ha effetto solo lato server
-            new_private = PlayerPrivate(socket)
-            new_private.player_state.index.val = len(self.lista_player)  # la prima volta è 0
+            new_private = PlayerPrivate(socket, len(self.lista_player))
             self.lista_player.append(new_private)
+            self.replicators.append(new_private.player_state.replicator)  # replicator del nuovo player state
             print('conncted', address)
         self.dai_carte()
         self.game_loop()
@@ -49,19 +53,15 @@ class GameMode:
     def game_loop(self):
         self.game_state.fase_gioco.val = PASSAGGIO_CARTE
         while self.running:
-            for giocatore in self.lista_player:
-                recv_messaggi(giocatore.socket)
-                for mess in Messaggio.codaMessaggi:
-                    self.client_message(giocatore, mess)
-                Messaggio.codaMessaggi = []  # svuoto perché ho usato
+            safe_recv_var(self.replicators)
+            # for giocatore in self.lista_player:
+            #     recv_messaggi(giocatore.socket)
+            #     for mess in Messaggio.codaMessaggi:
+            #         self.client_message(giocatore, mess)
+            #     Messaggio.codaMessaggi = []  # svuoto perché ho usato
 
     def client_message(self, giocatore, messaggio):
-        if messaggio.tipo == USERNAME_TYPE:
-            print('set username', messaggio.get_campo('username'))
-            index = self.lista_player.index(giocatore)
-            # metto nel player pubblico l'username che ho letto dal messaggio del client
-            self.game_state.lista_player[index].username.val = messaggio.get_campo('username')
-        elif messaggio.tipo == CARTA_TYPE:
+        if messaggio.tipo == CARTA_TYPE:
             carta = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
             print('giocata', carta.seme, carta.valore)
             self.carta_client(giocatore, carta)

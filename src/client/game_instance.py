@@ -5,6 +5,7 @@ from client.menu_controller import *
 from client.game_controller import *
 from replicated.game_state import *
 from replicated.player_state import *
+from client.global_var import *
 
 
 # PARAMETRI

@@ -1,5 +1,5 @@
 from socket import socket, AF_INET, SOCK_STREAM, timeout
-from varname import varname
+#  from varname import varname
 from json import dumps, loads
 
 
@@ -47,7 +47,9 @@ def safe_recv_var(replicators):
             messaggi.remove('')  # l'ultima potrebbe essere vuota
             for mess in messaggi:
                 for r in replicators:
-                    r.rec_var(mess)
+                    trovato = r.rec_var(mess)
+                    if trovato:  # non serve continuare la ricerca
+                        break
         except timeout:
             pass
         except ConnectionAbortedError:
@@ -60,6 +62,7 @@ class Replicator:  # contiene le info per replicare le variabili
     def __init__(self, rep_id, auth=False, sockets=[]):
         self.id = rep_id  # il nome che che mi dice dove stanno le variabili che replico
         self.auth = auth  # mi dice se ho autorità di modificare variabili usanodo questo replicator
+        # rappresenta l'auth di default, può essere sovrascritta da quella della var stessa
         self.sockets = sockets  # socket a cui inviare
         self.vars = []  # variabili associate
 
@@ -75,29 +78,50 @@ class Replicator:  # contiene le info per replicare le variabili
         stringa = messaggio[index+1:]
         return rep_id, stringa
 
+    @staticmethod
+    def can_match(string, pattern):  # guarda se il primo può combaciare con il secondo considerando gli * come jolly
+        if len(string) != len(pattern):
+            return False
+        for i in range(len(pattern)):
+            if pattern[i] != '*' and pattern[i] != string[i]:
+                return False
+        return True
+
     def rec_var(self, messaggio):  # restituisce True solo se questo è il suo replicator così posso smettere di cercare
         rep_id, stringa = Replicator.split_id_string(messaggio)
-        if rep_id != self.id:
-            return False  # false se questo non è il replicator giusto per questo messaggio
-        if self.auth:
-            return True  # non modifico ma comunque True perchè questo è  il suo Replicator
+        if not Replicator.can_match(rep_id, self.id):
+            return False  # false se questo non è il replicator per questo messaggio (se il nome non può andare bene)
         var_id, stringa_serial = Replicator.split_id_string(stringa)
         for v in self.vars:  # cerco la var giusta
             if v.get_id() == var_id:
-                v.custom_load(stringa_serial)
+                if not v.calcola_auth():  # se non ho auth accetto la modifica
+                    v.custom_load(stringa_serial)
+        return True  # anche se non modifico perché non ho auth oppure non esiste la var ma comunque questo era il
+        # replicator giusto quindi restituisco True così capisce che non deve cercare in altri
+
+
+class NoAuthority(Exception):  # Raisato quando provo a modificare una var su cui non ho auth
+    pass
 
 
 # questa class si occupa di tenere aggiornato il valore di val accross the network per i tipo base, per le classi
 # scritte dall'utente si limita ad aggiornarne gli attributi ma l'oggetto deve essere già esistente per tutti i connessi
+# non funziona con liste di oggetti o oggetti di oggetti, gli oggetti dell'utente possono solo essere assegnati
+# direttamente a val
+# nota che con on_rep posso creare delle funzioni a distanza passando i parametri come valore di questa variabile e
+# mettende la funzione che deve essere chiamata in on_rep
 class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per aggiornarla su gli altri
-    def __init__(self, val, replicator, id_name=None):
+    def __init__(self, val, replicator, id_name=None, auth=None, on_rep=None):
         self.creating = True
         if id_name is None:
-            self._id = varname()
+            #  self._id = varname()  # pare non funzioni se ReplicatedVar è assegnata a un attributo
+            pass
         else:
             self._id = id_name
         self.val = val  # aggiunge attributo val
         self.replicator = replicator
+        self.auth = auth
+        self.on_rep = on_rep  # cosa fare se arriva il messaggio di cambio di valore
         self.replicator.vars.append(self)  # si aggiunge alle var del replicator
         self.creating = False
 
@@ -122,7 +146,7 @@ class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per
     def _load_obj(self, dictionary):
         del dictionary['__obj__']
         for key in dictionary:  # assegna i valori
-            setattr(self.val, key, dictionary[key])
+            setattr(self.val, key, dictionary[key])  # non setta val ma gli attributi di val nome per nome
 
     def custom_load(self, stringa):
         data = loads(stringa)
@@ -131,20 +155,22 @@ class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per
             self._load_obj(data)
         else:
             self.set_no_rep(data)
+        if self.on_rep is not None:
+            self.on_rep()  # attiva azione da fare quando viene modificato il valore da chi ha auth
 
-    def rep_val(self, new_val):  # usare da fuori per aggiornare e dire a tutti senza cambiare
-        if self.replicator.auth:
+    def calcola_auth(self):  # si occupa di gestire le contraddizioni tra auth della var e del replicator
+        if self.auth is None:
+            return self.replicator.auth  # se quella della var è none allore usiamo quella del replicator
+        return self.auth  # se no quella della var è dominante
+
+    def rep_val(self):  # usare da fuori per aggiornare e dire a tutti senza cambiare
+        if self.calcola_auth():
             stringa = self._id + ':' + self._serial()  # aggiungo id della var
             self.replicator.manda_var(stringa)
         else:
-            print('no auth')
+            raise NoAuthority
 
     def __setattr__(self, key, value):
         super(ReplicatedVar, self).__setattr__(key, value)
         if not self.creating and key == 'val':  # in init skippo questa parte
-            self.rep_val(value)
-
-
-
-
-
+            self.rep_val()
