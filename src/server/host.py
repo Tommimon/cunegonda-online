@@ -16,7 +16,7 @@ while True:
     serverSocket.listen()
     print('server ready')
 
-    GlobalVar.game_state = GameState()
+    GlobalVar.game_state = GameState(auth=True)
 
     gameMode = GameMode()
     gameMode.server_socket = serverSocket

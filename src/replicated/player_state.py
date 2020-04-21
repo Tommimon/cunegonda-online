@@ -1,22 +1,16 @@
 # contiene solo i dati condivisi tra owner client e server
-
+from tcp_basics import Replicator, ReplicatedVar
 from comunication import *
 from card import *
 
 
 class PlayerState:
-    def __init__(self, socket=None):
-        self.index = None  # utile solo al client perché il server li ha in ordine in una lista
+    def __init__(self, socket=None, auth=False):
+        self.replicator = Replicator('player_state', auth=auth)
+        self.index = ReplicatedVar(None, self.replicator, 'index')  # utile solo al client perché il server li ha in ordine
         self.mano = []
         self.scambiate = []
         self.socket = socket  # usato solo lato server
-
-    def _replicate_var_int(self, nome_var, valore):
-        mess = Messaggio()
-        mess.tipo = PLAYER_LOCAL_TYPE
-        mess.add_campo('nome_variabile', nome_var)
-        mess.add_campo_int(nome_var, valore)
-        mess.safe_send(self.socket)
 
     def _replicate_var_card(self, nome_var, seme, valore):  # qui non serve diere nome var perché ne ho una
         mess = Messaggio()
@@ -47,10 +41,6 @@ class PlayerState:
         self.scambiate = []
         self._replicate_var_int('clear_scambiate', 0)  # int perché non so che mettere
 
-    def set_rep_index(self, index):
-        self.index = index
-        self._replicate_var_int('index', index)
-
     # nota che se devo aggiungere altre var da leggere qui verrà un if, elif, elif...
     def risolvi_messaggio(self, messaggio):  # legge i messaggi del server sul lato client
         nome_var = messaggio.get_campo('nome_variabile')
@@ -69,6 +59,3 @@ class PlayerState:
         elif nome_var == 'clear_scambiate':
             self.scambiate = []
             print('clear_scambiate')
-        elif nome_var == 'index':
-            self.index = messaggio.get_campo_int(nome_var)
-            print('assegnato index', self.index)

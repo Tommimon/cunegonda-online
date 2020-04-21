@@ -29,9 +29,9 @@ class GameMode:
         while len(self.lista_player) < 4:
             socket, address = self.server_socket.accept()
             socket.settimeout(TIMEOUT)
-            self.game_state.lista_socket.append(socket)  # ha effetto solo lato server
+            self.game_state.replicator.sockets.append(socket)  # ha effetto solo lato server
             new_private = PlayerPrivate(socket)
-            new_private.player_state.set_rep_index(len(self.lista_player))  # la prima volta è 0
+            new_private.player_state.index.val = len(self.lista_player)  # la prima volta è 0
             self.lista_player.append(new_private)
             print('conncted', address)
         self.dai_carte()
@@ -47,7 +47,7 @@ class GameMode:
                 giocatore.player_state.add_to_mano(c)
 
     def game_loop(self):
-        self.game_state.set_rep_fase(PASSAGGIO_CARTE)
+        self.game_state.fase_gioco.val = PASSAGGIO_CARTE
         while self.running:
             for giocatore in self.lista_player:
                 recv_messaggi(giocatore.socket)
@@ -60,7 +60,7 @@ class GameMode:
             print('set username', messaggio.get_campo('username'))
             index = self.lista_player.index(giocatore)
             # metto nel player pubblico l'username che ho letto dal messaggio del client
-            self.game_state.lista_player[index].set_rep_username(messaggio.get_campo('username'))
+            self.game_state.lista_player[index].username.val = messaggio.get_campo('username')
         elif messaggio.tipo == CARTA_TYPE:
             carta = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
             print('giocata', carta.seme, carta.valore)
@@ -82,27 +82,27 @@ class GameMode:
 
     def carta_client(self, giocatore, carta):  # controlla in che fase siamo e se si può adoperare la carta e poi fa
         if GameMode.possiede_carta(giocatore, carta):  # se possiede davvero questa carta
-            if self.game_state.fase_gioco == PASSAGGIO_CARTE:  # se le stiamo passando la metto nelle scambiate
+            if self.game_state.fase_gioco.val == PASSAGGIO_CARTE:  # se le stiamo passando la metto nelle scambiate
                 if len(giocatore.player_state.scambiate) < 3:  # se non ne ho già scambiate 3
                     self.metti_in_passate(giocatore, carta)
-            elif self.game_state.fase_gioco == GIOCO and (not self.pausa):  # se stiamo giocando e non è pausa
+            elif self.game_state.fase_gioco.val == GIOCO and (not self.pausa):  # se stiamo giocando e non è pausa
                 index = self.lista_player.index(giocatore)
-                if index == self.game_state.turno:  # se è il suo turno
+                if index == self.game_state.turno.val:  # se è il suo turno
                     if (index == self.primo or (not GameMode.possiede_seme(giocatore, self.seme_giro))
                             or self.seme_giro == carta.seme):  # se è primo o non ha questo seme o è seme giusto
                         self.metti_in_giocata(index, carta)
 
     def metti_in_giocata(self, index, carta):
         self.lista_player[index].player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
-        self.game_state.lista_player[index].set_rep_carta_gioc(carta)  # la metto nelle giocate
+        self.game_state.lista_player[index].carta_giocata.val = carta  # la metto nelle giocate
         self.questo_giro.append(carta)  # mi salvo le carte giocate nella gamemode
-        if self.game_state.turno == self.primo:
+        if self.game_state.turno.val == self.primo:
             self.seme_giro = carta.seme  # il primo decide il seme del giro
-        if self.game_state.turno == self.ultimo:
+        if self.game_state.turno.val == self.ultimo:
             self.risolvi_questo_giro()
         else:
-            turno = (self.game_state.turno + 1) % 4
-            self.game_state.set_rep_turno(turno)
+            turno = (self.game_state.turno.val + 1) % 4
+            self.game_state.turno.val = turno
 
     def metti_in_passate(self, giocatore, carta):
         giocatore.player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
@@ -114,7 +114,7 @@ class GameMode:
             state = gioc.player_state
             if len(state.scambiate) < 3:
                 return
-        self.passa_carte()  # si occupa anche di fare self.game_state.set_rep_fase(GIOCO)
+        self.passa_carte()  # si occupa anche di fare self.game_state.fase_gioco.val = GIOCO
 
     def passa_carte(self):
         for gioc in self.lista_player:
@@ -122,7 +122,7 @@ class GameMode:
             for carta in state.scambiate:
                 index = (self.lista_player.index(gioc) - 1) % 4  # prendo il giocatore precedente
                 self.lista_player[index].player_state.add_to_mano(carta)  # gli passo la carta
-            self.game_state.set_rep_fase(GIOCO)
+            self.game_state.fase_gioco.val = GIOCO
             state.clear_scambiate()  # tolgo tutte le scambiate
 
     def calcola_punteggio(self):
@@ -181,28 +181,28 @@ class GameMode:
 
     def fine_turno(self):
         for g in self.game_state.lista_player:  # svuoto giocate in ogni caso
-            g.set_rep_carta_gioc(Card())
+            g.carta_giocata.val = Card()
         if len(self.lista_player[0].player_state.mano) == 0:  # se un giocatore non ha carte (tutti le hanno finite)
             self.check_cappotto()
             for i in range(len(self.lista_player)):  # aggiorno punteggi totali per tutti
                 g_privat = self.lista_player[i]
                 g_public = self.game_state.lista_player[i]
-                g_public.set_rep_punteggio_tot(g_public.punteggio_tot + g_privat.punteggio)
+                g_public.punteggio_tot.val = g_public.punteggio_tot.val + g_privat.punteggio
                 g_privat.punteggio = 0
                 g_privat.carte_prese = []
-            self.game_state.set_rep_fase(FINE_PARTITA)  # così gli HUD scrivono fine partita
+            self.game_state.fase_gioco.val = FINE_PARTITA  # così gli HUD scrivono fine partita
             t = Timer(10, self.fine_partita)
             t.start()
         else:
             self.pausa = False
-            self.game_state.set_rep_turno(self.primo)
+            self.game_state.turno.val = self.primo
 
     def fine_partita(self):
-        self.game_state.set_rep_cont_partita(self.game_state.cont_partita + 1)
+        self.game_state.cont_partita.val = self.game_state.cont_partita.val + 1
         self.pausa = False
         self.primo_in_prima = (self.primo_in_prima + 1) % 4
         self.primo = self.primo_in_prima
         self.ultimo = (self.primo - 1) % 4
-        self.game_state.set_rep_turno(self.primo)
+        self.game_state.turno.val = self.primo
         self.dai_carte()
-        self.game_state.set_rep_fase(PASSAGGIO_CARTE)
+        self.game_state.fase_gioco.val = PASSAGGIO_CARTE

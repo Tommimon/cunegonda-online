@@ -8,4 +8,4 @@ class PlayerPrivate:
         self.socket = socket  # identificativo
         self.punteggio = 0
         self.carte_prese = []
-        self.player_state = PlayerState(self.socket)  # nota che dentro al player state le var sono pubbliche
+        self.player_state = PlayerState(self.socket, auth=True)  # nota che dentro al player state le var sono pubbliche

@@ -90,9 +90,12 @@ class Replicator:  # contiene le info per replicare le variabili
 # questa class si occupa di tenere aggiornato il valore di val accross the network per i tipo base, per le classi
 # scritte dall'utente si limita ad aggiornarne gli attributi ma l'oggetto deve essere già esistente per tutti i connessi
 class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per aggiornarla su gli altri
-    def __init__(self, val, replicator):
+    def __init__(self, val, replicator, id_name=None):
         self.creating = True
-        self._id = varname()
+        if id_name is None:
+            self._id = varname()
+        else:
+            self._id = id_name
         self.val = val  # aggiunge attributo val
         self.replicator = replicator
         self.replicator.vars.append(self)  # si aggiunge alle var del replicator

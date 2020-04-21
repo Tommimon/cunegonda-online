@@ -46,7 +46,7 @@ class GameInstance:
     @staticmethod
     def game():  # crea i componenti principali per il gioco
         print('opening game...')
-        GlobalVar.game_state = GameState()
-        GlobalVar.player_state = PlayerState()
+        GlobalVar.game_state = GameState(auth=False)
+        GlobalVar.player_state = PlayerState(auth=False)
         controller = GameController()
         controller.loop()
