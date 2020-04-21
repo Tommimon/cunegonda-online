@@ -1,6 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM, timeout
-#  from varname import varname
+from varname import varname
 from json import dumps, loads
+from data_classes import data_classes
 
 
 def server_init(server_ip, server_port):  # fa la passive open e restituisce il socket del server
@@ -20,7 +21,7 @@ def client_init(server_ip, server_port):  # fala active oopen e restituisce il s
 
 # PARAMETRI
 CODIFICA = 'utf-8'
-BUFFER_SIZE = 2048
+BUFFER_SIZE = 4096
 
 
 def safe_send(messaggio, sock):
@@ -114,7 +115,7 @@ class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per
     def __init__(self, val, replicator, id_name=None, auth=None, on_rep=None):
         self.creating = True
         if id_name is None:
-            #  self._id = varname()  # pare non funzioni se ReplicatedVar è assegnata a un attributo
+            self._id = varname()  # pare non funzioni se ReplicatedVar è assegnata a un attributo
             pass
         else:
             self._id = id_name
@@ -136,25 +137,58 @@ class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per
     @staticmethod
     def _json_default(obj):
         lis = obj.__dict__
-        lis['__obj__'] = True  # aggiungo il fatto che non sia una normale dict ma un oggetto
+        lis['__type__'] = type(obj).__name__  # aggiungo il fatto che non sia una normale dict ma un oggetto e il tipo
         print('lis', lis)
         return lis
 
     def _serial(self):
         return dumps(self.val, default=ReplicatedVar._json_default)
 
-    def _load_obj(self, dictionary):
-        del dictionary['__obj__']
-        for key in dictionary:  # assegna i valori
-            setattr(self.val, key, dictionary[key])  # non setta val ma gli attributi di val nome per nome
+    @staticmethod
+    def decode_list(lista):
+        for i in range(len(lista)):
+            lista[i] = ReplicatedVar.decode(lista[i])
+        return lista
+
+    @staticmethod
+    def decode_dict(diction):
+        for key in diction:
+            diction[key] = ReplicatedVar.decode(diction[key])
+        return diction
+
+    @staticmethod
+    def crea_obj(classe, obj):
+        instance = classe()
+        for key in obj:  # nota che obj è ancora un dict
+            instance.__setattr__(key, obj[key])
+        return instance
+
+    @staticmethod
+    def decode_obj(obj):
+        for c in data_classes:
+            if c.__name__ == obj['__type__']:
+                del obj['__type__']  # non serve più
+                return ReplicatedVar.crea_obj(c, obj)
+        del obj['__type__']
+        return ReplicatedVar.decode_dict(obj)  # non lo conosco quindi lo tratto come dict
+
+    @staticmethod
+    def decode(data):
+        # possibili tipi di dato: None, bool, int, float, str, list, dict
+        if type(data) == list:
+            return ReplicatedVar.decode_list(data)  # nota che ora data è una lista
+        elif type(data) == dict:
+            if '__type__' in data:
+                return ReplicatedVar.decode_obj(data)
+            else:
+                return ReplicatedVar.decode_dict(data)
+        else:
+            return data
 
     def custom_load(self, stringa):
         data = loads(stringa)
-        # possibili tipi di dato: None, bool, int, float, str, list, dict
-        if type(data) == dict and '__obj__' in data:
-            self._load_obj(data)
-        else:
-            self.set_no_rep(data)
+        obj = ReplicatedVar.decode(data)
+        self.set_no_rep(obj)
         if self.on_rep is not None:
             self.on_rep()  # attiva azione da fare quando viene modificato il valore da chi ha auth
 
