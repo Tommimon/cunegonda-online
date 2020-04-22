@@ -2,7 +2,6 @@
 
 from card import *
 from tcp_basics import ReplicatedVar, Replicator
-from comunication import *
 
 
 class PlayerPublic:

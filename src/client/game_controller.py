@@ -1,9 +1,9 @@
 # gestisce gli eventi di pygame per il gioco vero e proprio
 
 from client.game_GUI import *
-from comunication import *
 from replicated.game_state import *
 from tcp_basics import safe_recv_var
+import socket as sock
 
 FPS = 60  # Frames per second.
 TIMEOUT = 0.2

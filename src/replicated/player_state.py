@@ -1,6 +1,5 @@
 # contiene solo i dati condivisi tra owner client e server
 from tcp_basics import Replicator, ReplicatedVar
-from comunication import *
 from card import *
 
 try:
