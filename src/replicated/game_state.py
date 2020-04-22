@@ -1,13 +1,15 @@
 # contiene i dati pubblici per tutti
 
-from replicated.player_public import *
+from replicated.player_public import PlayerPublic
 from tcp_basics import Replicator, ReplicatedVar
 
-# FASI
-ATTESA_GIOCATORI = 1
-PASSAGGIO_CARTE = 2
-GIOCO = 3
-FINE_PARTITA = 4
+
+class Fase:
+    # FASI
+    ATTESA_GIOCATORI = 1
+    PASSAGGIO_CARTE = 2
+    GIOCO = 3
+    FINE_PARTITA = 4
 
 
 class GameState:
@@ -15,7 +17,7 @@ class GameState:
         self.replicator = Replicator('game_state', auth=auth)
         self.cont_partita = ReplicatedVar(1, self.replicator, 'cont_partita')
         self.turno = ReplicatedVar(0, self.replicator, 'turno')
-        self.fase_gioco = ReplicatedVar(ATTESA_GIOCATORI, self.replicator, 'fase_gioco')
+        self.fase_gioco = ReplicatedVar(Fase.ATTESA_GIOCATORI, self.replicator, 'fase_gioco')
         self.lista_player = []  # tecnicamente ognuno si fa la sua e non è replicata ma tutti mettono gli stessi valori
         # per ogni giocatore quindi è come se lo fosse
         self.add_giocatori()

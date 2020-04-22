@@ -1,9 +1,9 @@
 # si occupa della gestione delle regole e dei dati privati del server
 
-from server.global_var import *
-from replicated.game_state import *
-from server.player_private import *
-from server.deck import *
+from server.global_var import GlobalVar
+from replicated.game_state import Fase
+from server.player_private import PlayerPrivate
+from server.deck import Deck, Card
 from threading import Timer
 from tcp_basics import safe_recv_var
 
@@ -52,23 +52,17 @@ class GameMode:
             giocatore.player_state.mano.rep_val()
 
     def game_loop(self):
-        self.game_state.fase_gioco.val = PASSAGGIO_CARTE
+        self.game_state.fase_gioco.val = Fase.PASSAGGIO_CARTE
         while self.running:
             safe_recv_var(self.replicators)
-
-    def client_message(self, giocatore, messaggio):
-        if messaggio.tipo == CARTA_TYPE:
-            carta = Card(messaggio.get_campo_int('valore'), messaggio.get_campo_int('seme'))
-            print('giocata', carta.seme, carta.valore)
-            self.carta_client(giocatore, carta)
 
     def carta_client(self, index_g, carta):  # controlla in che fase siamo e se si può adoperare la carta e poi faù
         giocatore = self.lista_player[index_g]  # giocatore è un private player type
         if Card.possiede_carta(giocatore, carta):  # se possiede davvero questa carta
-            if self.game_state.fase_gioco.val == PASSAGGIO_CARTE:  # se le stiamo passando la metto nelle scambiate
+            if self.game_state.fase_gioco.val == Fase.PASSAGGIO_CARTE:  # se le stiamo passando la metto nelle scambiate
                 if len(giocatore.player_state.scambiate.val) < 3:  # se non ne ho già scambiate 3
                     self.metti_in_passate(giocatore, carta)
-            elif self.game_state.fase_gioco.val == GIOCO and (not self.pausa):  # se stiamo giocando e non è pausa
+            elif self.game_state.fase_gioco.val == Fase.GIOCO and (not self.pausa):  # se stiamo giocando e non è pausa
                 if index_g == self.game_state.turno.val:  # se è il suo turno
                     if (index_g == self.primo or
                             Card.carta_permessa(giocatore.player_state.mano.val, self.seme_giro, carta)):
@@ -108,7 +102,7 @@ class GameMode:
             for carta in state.scambiate.val:
                 self.lista_player[index].player_state.mano.val.append(carta)  # gli passo la carta
             self.lista_player[index].player_state.mano.rep_val()
-            self.game_state.fase_gioco.val = GIOCO
+            self.game_state.fase_gioco.val = Fase.GIOCO
             state.scambiate.val = []  # tolgo tutte le scambiate
 
     def calcola_punteggio(self):
@@ -176,7 +170,7 @@ class GameMode:
                 g_public.punteggio_tot.val = g_public.punteggio_tot.val + g_privat.punteggio
                 g_privat.punteggio = 0
                 g_privat.carte_prese = []
-            self.game_state.fase_gioco.val = FINE_PARTITA  # così gli HUD scrivono fine partita
+            self.game_state.fase_gioco.val = Fase.FINE_PARTITA  # così gli HUD scrivono fine partita
             t = Timer(10, self.fine_partita)
             t.start()
         else:
@@ -191,4 +185,4 @@ class GameMode:
         self.ultimo = (self.primo - 1) % 4
         self.game_state.turno.val = self.primo
         self.dai_carte()
-        self.game_state.fase_gioco.val = PASSAGGIO_CARTE
+        self.game_state.fase_gioco.val = Fase.PASSAGGIO_CARTE

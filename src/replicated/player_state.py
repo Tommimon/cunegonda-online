@@ -1,6 +1,6 @@
 # contiene solo i dati condivisi tra owner client e server
 from tcp_basics import Replicator, ReplicatedVar
-from card import *
+from card import Card
 
 try:
     import server.global_var as server_gv  # solo per lato server

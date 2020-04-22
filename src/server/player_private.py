@@ -1,6 +1,6 @@
 # mette insieme le variabili di uno stesso giocatore usate dalla gamemode (privati del server)
 
-from replicated.player_state import *
+from replicated.player_state import PlayerState
 
 
 class PlayerPrivate:

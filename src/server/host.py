@@ -1,6 +1,8 @@
-from server.game_mode import *
-from settings_reader import *
-from replicated.game_state import *
+from server.game_mode import GameMode
+from settings_reader import SettingsReader
+from replicated.game_state import GameState
+from server.global_var import GlobalVar
+import socket as sock
 
 SETTINGS_FILE = 'server_settings.txt'
 

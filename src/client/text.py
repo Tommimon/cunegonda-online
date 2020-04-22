@@ -1,7 +1,7 @@
 # testo in linea semplice in cui posso specificare testo e sfondo
 
 import pygame as pg
-from client.color import *
+from client.color import NERO, BIANCO
 
 FONT = 'freesansbold.ttf'
 

@@ -1,11 +1,12 @@
 # resposabile delle variabili che persistono tra diverse schermate e del passaggio tra di esse
 
-from settings_reader import *
-from client.menu_controller import *
-from client.game_controller import *
-from replicated.game_state import *
-from replicated.player_state import *
-from client.global_var import *
+from settings_reader import SettingsReader
+from client.menu_controller import MenuController
+from client.game_controller import GameController
+from replicated.game_state import GameState
+from replicated.player_state import PlayerState
+from client.global_var import GlobalVar
+import pygame as pg
 
 
 # PARAMETRI

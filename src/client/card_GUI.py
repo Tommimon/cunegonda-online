@@ -1,9 +1,9 @@
 #  crea il rettangolo cliccabile della carta in cui compare l'immagine
 
 import pygame as pg
-from card import *
-from client.global_var import *
 from pathlib import Path
+from card import Card
+from client.global_var import GlobalVar
 
 
 class CardGUI:
@@ -69,5 +69,3 @@ class CardGUI:
         if self.activated and not self.vuoto:
             if self.rect.collidepoint(mouse_pos):
                 GlobalVar.player_controller.gioca_carta(self._carta)
-
-
