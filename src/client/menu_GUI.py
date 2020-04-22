@@ -1,7 +1,10 @@
 #  gestisce i bottoni e risolve i mouse button event
 
-from client.button import *
-from client.global_var import *
+from client.color import *
+from client.button import Button
+from client.text import Text
+from client.global_var import GlobalVar
+import pygame as pg
 
 
 class MenuGUI:

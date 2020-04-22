@@ -1,9 +1,12 @@
 # gestisce tutta lagui del gioco: carte, bottoni e altro
 
-from client.card_GUI import *
-from client.button import *
-from client.global_var import *
-from replicated.game_state import *
+from client.color import *
+from client.card_GUI import CardGUI, Card
+from client.button import Button
+from client.text import Text
+from client.global_var import GlobalVar
+from replicated.game_state import Fase
+import pygame as pg
 
 
 VUOTO = Card()  # corrisponde a carta vuota
@@ -42,25 +45,25 @@ class GameGUI:
         n_partita = GlobalVar.game_state.cont_partita.val
         self.text_partita.set_text('Game ' + str(n_partita))
         fase = GlobalVar.game_state.fase_gioco.val
-        if fase == ATTESA_GIOCATORI:  # testo top
+        if fase == Fase.ATTESA_GIOCATORI:  # testo top
             self.top_text.set_text('In attesa di altri giocatori')
-        elif fase == PASSAGGIO_CARTE:
+        elif fase == Fase.PASSAGGIO_CARTE:
             self.top_text.set_text('Seleziona le carte da passare')
-        elif fase == GIOCO:
+        elif fase == Fase.GIOCO:
             self.refresh_turno()
 
     def calcola_storico(self):
         index = GlobalVar.player_state.index.val  # prendo l'index di questo stesso giocatore
         lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
         fase = GlobalVar.game_state.fase_gioco.val
-        if fase == FINE_PARTITA and not self.punt_calcolato:
+        if fase == Fase.FINE_PARTITA and not self.punt_calcolato:
             self.punt_calcolato = True  # poi in passaggio_carte viene rimesso a False
             punti = lista_player[index].punteggio_tot.val  # prendo il punteggio_tot dal game_state
             delta = punti - self.punteggio_mio
             self.punteggio_mio = punti  # aggiorno
             self.storico.append(delta)  # aggiungo punti fatti in questa allo storico
             self.top_text.set_text('Hai fatto ' + str(delta) + ' punti in questa partita')
-        elif fase == PASSAGGIO_CARTE:
+        elif fase == Fase.PASSAGGIO_CARTE:
             self.punt_calcolato = False  # a fine partita viene calcolato e messo true fino alla prox passaggio_carte
 
     def refresh_mio_punteggio(self):
@@ -118,10 +121,10 @@ class GameGUI:
         self.screen.fill(NERO)  # copro frame prec
         self.display_top()
         fase = GlobalVar.game_state.fase_gioco.val
-        if fase != ATTESA_GIOCATORI:
+        if fase != Fase.ATTESA_GIOCATORI:
             self.display_usernames()
             self.display_punteggi()
-        if fase == PASSAGGIO_CARTE or fase == GIOCO:
+        if fase == Fase.PASSAGGIO_CARTE or fase == Fase.GIOCO:
             self.display_carte()
         pg.display.update()  # Or pg.display.flip()
 

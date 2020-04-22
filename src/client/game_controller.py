@@ -1,9 +1,11 @@
 # gestisce gli eventi di pygame per il gioco vero e proprio
 
-from client.game_GUI import *
-from replicated.game_state import *
+from client.game_GUI import GameGUI
+from replicated.game_state import Fase
 from tcp_basics import safe_recv_var
+from client.global_var import GlobalVar
 import socket as sock
+import pygame as pg
 
 FPS = 60  # Frames per second.
 TIMEOUT = 0.2
@@ -57,6 +59,7 @@ class GameController:
     @staticmethod
     def gioca_carta(carta):
         fase = GlobalVar.game_state.fase_gioco.val
-        if ((fase == PASSAGGIO_CARTE and len(GlobalVar.player_state.scambiate.val) < 3)  # se devo ancora passare carte
-                or fase == GIOCO and GlobalVar.game_state.turno.val == GlobalVar.player_state.index.val):  # o giocare
+        # se devo ancora passare carte o se è il mio turno di giocare giocare
+        if ((fase == Fase.PASSAGGIO_CARTE and len(GlobalVar.player_state.scambiate.val) < 3)
+                or fase == Fase.GIOCO and GlobalVar.game_state.turno.val == GlobalVar.player_state.index.val):
             GlobalVar.player_state.param_scelta.val = carta  # basta questo per dire al server di aver giocato la carta

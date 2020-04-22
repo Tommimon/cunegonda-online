@@ -1,6 +1,7 @@
 # come bottoni uso dei testi in cui implemento la possibilità di cliccare
 
-from client.text import *
+from client.text import Text
+from client.color import NERO, BIANCO
 
 
 class Button(Text):

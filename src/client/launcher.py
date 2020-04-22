@@ -1,4 +1,4 @@
-from client.game_instance import *
+from client.game_instance import GameInstance
 
 print('launching game...')
 newGame = GameInstance()  # creo la game instance

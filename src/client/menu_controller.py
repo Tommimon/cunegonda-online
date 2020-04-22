@@ -1,6 +1,8 @@
 # gestisce gli eventi di pygame, in questo caso solo quit e mouse (che passa all'HUD)
 
-from client.menu_GUI import *
+from client.menu_GUI import MenuGUI
+from client.global_var import GlobalVar
+import pygame as pg
 
 FPS = 60  # Frames per second.
 

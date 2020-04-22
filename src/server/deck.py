@@ -1,6 +1,6 @@
 # questa classe rappresenta un mazzo quindi contiene tante carte e i metodi per agire sul mazzo
 
-from card import *
+from card import Card
 import random as rand
 
 

@@ -1,6 +1,6 @@
 # mette insieme le variabili di uno stesso giocatore usate dal game_state
 
-from card import *
+from card import Card
 from tcp_basics import ReplicatedVar, Replicator
 
 
