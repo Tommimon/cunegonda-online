@@ -54,13 +54,9 @@ class GameController:
         except:  # voglio che qualunque cosa succeda torni al menu e non crashi
             self.indietro()
 
-    def gioca_carta(self, carta):
-        fase = GlobalVar.game_state.fase_gioco
-        if ((fase == PASSAGGIO_CARTE and len(GlobalVar.player_state.scambiate) < 3)  # se devo ancora passare carte
-                or fase == GIOCO and GlobalVar.game_state.turno == GlobalVar.player_state.index.val):  # o se devo giocare
-            mess = Messaggio()
-            mess.tipo = CARTA_TYPE
-            mess.add_campo_int('seme', carta.seme)
-            mess.add_campo_int('valore', carta.valore)
-            mess.safe_send(self.socket)
-            print(len(GlobalVar.player_state.mano))
+    @staticmethod
+    def gioca_carta(carta):
+        fase = GlobalVar.game_state.fase_gioco.val
+        if ((fase == PASSAGGIO_CARTE and len(GlobalVar.player_state.scambiate.val) < 3)  # se devo ancora passare carte
+                or fase == GIOCO and GlobalVar.game_state.turno.val == GlobalVar.player_state.index.val):  # o giocare
+            GlobalVar.player_state.param_scelta.val = carta  # basta questo per dire al server di aver giocato la carta

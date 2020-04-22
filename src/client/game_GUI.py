@@ -102,7 +102,7 @@ class GameGUI:
         self.carta_sinistra.set_carta(lista_player[(index + 1) % 4].carta_giocata.val)
         self.carta_alto.set_carta(lista_player[(index + 2) % 4].carta_giocata.val)
         self.carta_destra.set_carta(lista_player[(index + 3) % 4].carta_giocata.val)
-        new_mano = GlobalVar.player_state.mano.copy()
+        new_mano = GlobalVar.player_state.mano.val.copy()
         if new_mano != self.lista_mano:
             self.lista_mano = new_mano
             self.lista_carte_mano = []
@@ -161,3 +161,5 @@ class GameGUI:
     @staticmethod
     def gioca_la_prima():
         GlobalVar.player_controller.gioca_carta(GlobalVar.player_state.mano[0])
+        # non richiamo il metodo dalla classe anche se statico perché non posso importare qui PlayerController per
+        # evitare import circolari

@@ -39,8 +39,8 @@ class Card:
                 lista.remove(c)  # lo tolgo
 
     @staticmethod
-    def possiede_carta(giocatore, cercata):  # è un controllo anti imbrogli di solito del server
-        for c in giocatore.player_state.mano:
+    def possiede_carta(giocatore, cercata):  # è un controllo anti bari di solito del server
+        for c in giocatore.player_state.mano.val:
             if c.seme == cercata.seme and c.valore == cercata.valore:
                 return True
         return False

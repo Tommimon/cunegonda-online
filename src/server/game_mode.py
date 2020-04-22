@@ -46,19 +46,15 @@ class GameMode:
         self.mazzo.crea_carte()
         self.mazzo.mischia()
         for giocatore in self.lista_player:
-            carte = self.mazzo.pesca_n(13)
+            carte = self.mazzo.pesca_n(3)
             for c in carte:
-                giocatore.player_state.add_to_mano(c)
+                giocatore.player_state.mano.val.append(c)
+            giocatore.player_state.mano.rep_val()
 
     def game_loop(self):
         self.game_state.fase_gioco.val = PASSAGGIO_CARTE
         while self.running:
             safe_recv_var(self.replicators)
-            # for giocatore in self.lista_player:
-            #     recv_messaggi(giocatore.socket)
-            #     for mess in Messaggio.codaMessaggi:
-            #         self.client_message(giocatore, mess)
-            #     Messaggio.codaMessaggi = []  # svuoto perché ho usato
 
     def client_message(self, giocatore, messaggio):
         if messaggio.tipo == CARTA_TYPE:
@@ -66,34 +62,21 @@ class GameMode:
             print('giocata', carta.seme, carta.valore)
             self.carta_client(giocatore, carta)
 
-    @staticmethod
-    def possiede_carta(giocatore, cercata):
-        for c in giocatore.player_state.mano:
-            if c.seme == cercata.seme and c.valore == cercata.valore:
-                return True
-        return False
-
-    @staticmethod
-    def possiede_seme(giocatore, seme):
-        for c in giocatore.player_state.mano:
-            if c.seme == seme:
-                return True
-        return False
-
-    def carta_client(self, giocatore, carta):  # controlla in che fase siamo e se si può adoperare la carta e poi fa
-        if GameMode.possiede_carta(giocatore, carta):  # se possiede davvero questa carta
+    def carta_client(self, index_g, carta):  # controlla in che fase siamo e se si può adoperare la carta e poi faù
+        giocatore = self.lista_player[index_g]  # giocatore è un private player type
+        if Card.possiede_carta(giocatore, carta):  # se possiede davvero questa carta
             if self.game_state.fase_gioco.val == PASSAGGIO_CARTE:  # se le stiamo passando la metto nelle scambiate
-                if len(giocatore.player_state.scambiate) < 3:  # se non ne ho già scambiate 3
+                if len(giocatore.player_state.scambiate.val) < 3:  # se non ne ho già scambiate 3
                     self.metti_in_passate(giocatore, carta)
             elif self.game_state.fase_gioco.val == GIOCO and (not self.pausa):  # se stiamo giocando e non è pausa
-                index = self.lista_player.index(giocatore)
-                if index == self.game_state.turno.val:  # se è il suo turno
-                    if (index == self.primo or (not GameMode.possiede_seme(giocatore, self.seme_giro))
-                            or self.seme_giro == carta.seme):  # se è primo o non ha questo seme o è seme giusto
-                        self.metti_in_giocata(index, carta)
+                if index_g == self.game_state.turno.val:  # se è il suo turno
+                    if (index_g == self.primo or
+                            Card.carta_permessa(giocatore.player_state.mano.val, self.seme_giro, carta)):
+                        self.metti_in_giocata(index_g, carta)
 
     def metti_in_giocata(self, index, carta):
-        self.lista_player[index].player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
+        Card.del_carta(self.lista_player[index].player_state.mano.val, carta)  # tolgo la carta dalla mano
+        self.lista_player[index].player_state.mano.rep_val()  # non lo fa in automatico credo
         self.game_state.lista_player[index].carta_giocata.val = carta  # la metto nelle giocate
         self.questo_giro.append(carta)  # mi salvo le carte giocate nella gamemode
         if self.game_state.turno.val == self.primo:
@@ -105,25 +88,28 @@ class GameMode:
             self.game_state.turno.val = turno
 
     def metti_in_passate(self, giocatore, carta):
-        giocatore.player_state.del_rep_from_mano(carta)  # tolgo la carta dalla mano
-        giocatore.player_state.add_to_scambiate(carta)  # la metto in quelle scambiate
+        Card.del_carta(giocatore.player_state.mano.val, carta)  # tolgo la carta dalla mano
+        giocatore.player_state.mano.rep_val()  # non lo fa in automatico credo
+        giocatore.player_state.scambiate.val.append(carta)  # la metto in quelle scambiate
+        giocatore.player_state.scambiate.rep_val()
         self.ceck_fine_passaggio()
 
     def ceck_fine_passaggio(self):
         for gioc in self.lista_player:
             state = gioc.player_state
-            if len(state.scambiate) < 3:
+            if len(state.scambiate.val) < 3:
                 return
         self.passa_carte()  # si occupa anche di fare self.game_state.fase_gioco.val = GIOCO
 
     def passa_carte(self):
         for gioc in self.lista_player:
             state = gioc.player_state
-            for carta in state.scambiate:
-                index = (self.lista_player.index(gioc) - 1) % 4  # prendo il giocatore precedente
-                self.lista_player[index].player_state.add_to_mano(carta)  # gli passo la carta
+            index = (self.lista_player.index(gioc) - 1) % 4  # prendo il giocatore precedente
+            for carta in state.scambiate.val:
+                self.lista_player[index].player_state.mano.val.append(carta)  # gli passo la carta
+            self.lista_player[index].player_state.mano.rep_val()
             self.game_state.fase_gioco.val = GIOCO
-            state.clear_scambiate()  # tolgo tutte le scambiate
+            state.scambiate.val = []  # tolgo tutte le scambiate
 
     def calcola_punteggio(self):
         punteggio = 10  # valore di base
@@ -182,7 +168,7 @@ class GameMode:
     def fine_turno(self):
         for g in self.game_state.lista_player:  # svuoto giocate in ogni caso
             g.carta_giocata.val = Card()
-        if len(self.lista_player[0].player_state.mano) == 0:  # se un giocatore non ha carte (tutti le hanno finite)
+        if len(self.lista_player[0].player_state.mano.val) == 0:  # se un giocatore non ha carte (tutti le hanno finite)
             self.check_cappotto()
             for i in range(len(self.lista_player)):  # aggiorno punteggi totali per tutti
                 g_privat = self.lista_player[i]
