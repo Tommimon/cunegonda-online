@@ -34,7 +34,11 @@ def safe_send(messaggio, sock):
         pass
 
 
+restoBuffer = ''  # quello che rimane nel buffer lo metto qui
+
+
 def safe_recv_var(replicators):
+    global restoBuffer
     sockets = []
     for r in replicators:  # metto tutti i socket nella lista ma una sola volta
         for s in r.sockets:
@@ -42,10 +46,10 @@ def safe_recv_var(replicators):
                 sockets.append(s)
     for sock in sockets:
         try:
-            stringa = sock.recv(BUFFER_SIZE).decode(CODIFICA)
+            stringa = restoBuffer + sock.recv(BUFFER_SIZE).decode(CODIFICA)
             #  print('tcp-in ', stringa)
             messaggi = stringa.split('\n')  # serve se arrivano più messaggi alla volta
-            messaggi.remove('')  # l'ultima potrebbe essere vuota
+            restoBuffer = messaggi.pop(-1)  # sposto l'ultimo qui che poi sarà l'inizio del messaggio, di solito è ''
             for mess in messaggi:
                 for r in replicators:
                     trovato = r.rec_var(mess)
@@ -105,10 +109,8 @@ class NoAuthority(Exception):  # Raisato quando provo a modificare una var su cu
     pass
 
 
-# questa class si occupa di tenere aggiornato il valore di val accross the network per i tipo base, per le classi
-# scritte dall'utente si limita ad aggiornarne gli attributi ma l'oggetto deve essere già esistente per tutti i connessi
-# non funziona con liste di oggetti o oggetti di oggetti, gli oggetti dell'utente possono solo essere assegnati
-# direttamente a val
+# questa class si occupa di tenere aggiornato il valore di val accross the network per i tipo base e per le classi che
+# conosce attraverso data_classes.py, se no trasforma gli oggetti sconosciuti in dict
 # nota che con on_rep posso creare delle funzioni a distanza passando i parametri come valore di questa variabile e
 # mettende la funzione che deve essere chiamata in on_rep
 class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per aggiornarla su gli altri
