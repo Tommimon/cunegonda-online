@@ -5,6 +5,7 @@ from client.menu_controller import *
 from client.game_controller import *
 from replicated.game_state import *
 from replicated.player_state import *
+from client.global_var import *
 
 
 # PARAMETRI
@@ -46,7 +47,7 @@ class GameInstance:
     @staticmethod
     def game():  # crea i componenti principali per il gioco
         print('opening game...')
-        GlobalVar.game_state = GameState()
-        GlobalVar.player_state = PlayerState()
+        GlobalVar.game_state = GameState(auth=False)
+        GlobalVar.player_state = PlayerState(auth=False)
         controller = GameController()
         controller.loop()

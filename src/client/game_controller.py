@@ -1,8 +1,9 @@
 # gestisce gli eventi di pygame per il gioco vero e proprio
 
 from client.game_GUI import *
-from comunication import *
 from replicated.game_state import *
+from tcp_basics import safe_recv_var
+import socket as sock
 
 FPS = 60  # Frames per second.
 TIMEOUT = 0.2
@@ -13,6 +14,9 @@ class GameController:
         GlobalVar.player_controller = self
         self.GUI = GameGUI()  # creo HUD e mi salvo una ref
         self.socket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
+        self.replicators = [GlobalVar.player_state.replicator, GlobalVar.game_state.replicator]  # mi salvo tutti i...
+        for g in GlobalVar.game_state.lista_player:  # replicator, nel for quelli dei player_public
+            self.replicators.append(g.replicator)
         self.connettiti()
         self.clock = pg.time.Clock()  # inizializzo clock
         self.running = True
@@ -32,15 +36,7 @@ class GameController:
                 self.GUI.mouse_click(event.pos)
 
     def server_events(self):
-        recv_messaggi(self.socket)  # riempie la lista
-        for messaggio in Messaggio.codaMessaggi:
-            if messaggio.tipo == GAME_TYPE:
-                GlobalVar.game_state.risolvi_messaggio(messaggio)
-            if messaggio.tipo == PLAYER_PUBLIC_TYPE:
-                GlobalVar.game_state.lista_player[messaggio.get_campo_int('index')].risolvi_messaggio(messaggio)
-            if messaggio.tipo == PLAYER_LOCAL_TYPE:
-                GlobalVar.player_state.risolvi_messaggio(messaggio)
-        Messaggio.codaMessaggi = []  # li ho fatti quindi vanno tolti
+        safe_recv_var(self.replicators)
 
     def quit(self):
         self.running = False
@@ -52,21 +48,15 @@ class GameController:
     def connettiti(self):  # se non mi connetto al server torno al menu
         try:
             self.socket.connect(GlobalVar.game_instance.server_address)
+            GlobalVar.game_state.replicator.sockets = [self.socket]
+            GlobalVar.player_state.replicator.sockets = [self.socket]
             self.socket.settimeout(TIMEOUT)
-            mess = Messaggio()
-            mess.tipo = USERNAME_TYPE
-            mess.add_campo('username', GlobalVar.game_instance.username)
-            mess.safe_send(self.socket)
-        except:
+        except:  # voglio che qualunque cosa succeda torni al menu e non crashi
             self.indietro()
 
-    def gioca_carta(self, carta):
-        fase = GlobalVar.game_state.fase_gioco
-        if ((fase == PASSAGGIO_CARTE and len(GlobalVar.player_state.scambiate) < 3)  # se devo ancora passare carte
-                or fase == GIOCO and GlobalVar.game_state.turno == GlobalVar.player_state.index):  # o se devo giocare
-            mess = Messaggio()
-            mess.tipo = CARTA_TYPE
-            mess.add_campo_int('seme', carta.seme)
-            mess.add_campo_int('valore', carta.valore)
-            mess.safe_send(self.socket)
-            print(len(GlobalVar.player_state.mano))
+    @staticmethod
+    def gioca_carta(carta):
+        fase = GlobalVar.game_state.fase_gioco.val
+        if ((fase == PASSAGGIO_CARTE and len(GlobalVar.player_state.scambiate.val) < 3)  # se devo ancora passare carte
+                or fase == GIOCO and GlobalVar.game_state.turno.val == GlobalVar.player_state.index.val):  # o giocare
+            GlobalVar.player_state.param_scelta.val = carta  # basta questo per dire al server di aver giocato la carta

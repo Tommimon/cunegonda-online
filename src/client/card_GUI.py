@@ -44,7 +44,7 @@ class CardGUI:
         if not self.vuoto:
             file_name = self.nome_carta()
             path = Path('./res/') / file_name
-            picture = pg.image.load(path)
+            picture = pg.image.load(str(path))
             picture = pg.transform.scale(picture, self.dim)
             self._immagine = picture
 

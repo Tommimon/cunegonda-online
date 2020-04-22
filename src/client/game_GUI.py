@@ -39,9 +39,9 @@ class GameGUI:
         self.btn_indietro = Button('<--', (0, 0), GlobalVar.player_controller.indietro, text_color=BIANCO, bg_color=BLU)
 
     def refresh_top(self):  # in base alla fase chiama tutte le cose da aggiornare
-        n_partita = GlobalVar.game_state.cont_partita
+        n_partita = GlobalVar.game_state.cont_partita.val
         self.text_partita.set_text('Game ' + str(n_partita))
-        fase = GlobalVar.game_state.fase_gioco
+        fase = GlobalVar.game_state.fase_gioco.val
         if fase == ATTESA_GIOCATORI:  # testo top
             self.top_text.set_text('In attesa di altri giocatori')
         elif fase == PASSAGGIO_CARTE:
@@ -50,12 +50,12 @@ class GameGUI:
             self.refresh_turno()
 
     def calcola_storico(self):
-        index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
+        index = GlobalVar.player_state.index.val  # prendo l'index di questo stesso giocatore
         lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
-        fase = GlobalVar.game_state.fase_gioco
+        fase = GlobalVar.game_state.fase_gioco.val
         if fase == FINE_PARTITA and not self.punt_calcolato:
             self.punt_calcolato = True  # poi in passaggio_carte viene rimesso a False
-            punti = lista_player[index].punteggio_tot  # prendo il punteggio_tot dal game_state
+            punti = lista_player[index].punteggio_tot.val  # prendo il punteggio_tot dal game_state
             delta = punti - self.punteggio_mio
             self.punteggio_mio = punti  # aggiorno
             self.storico.append(delta)  # aggiungo punti fatti in questa allo storico
@@ -73,36 +73,36 @@ class GameGUI:
         self.text_punteggio.set_text(stringa_punteggio)
 
     def refresh_punteggi(self):
-        index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
+        index = GlobalVar.player_state.index.val  # prendo l'index di questo stesso giocatore
         lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
         self.refresh_mio_punteggio()
-        self.punteggio_sinistra.set_text(str(lista_player[(index + 1) % 4].punteggio_tot))  # per altri
-        self.punteggio_alto.set_text(str(lista_player[(index + 2) % 4].punteggio_tot))
-        self.punteggio_destra.set_text(str(lista_player[(index + 3) % 4].punteggio_tot))
+        self.punteggio_sinistra.set_text(str(lista_player[(index + 1) % 4].punteggio_tot.val))  # per altri
+        self.punteggio_alto.set_text(str(lista_player[(index + 2) % 4].punteggio_tot.val))
+        self.punteggio_destra.set_text(str(lista_player[(index + 3) % 4].punteggio_tot.val))
 
     def refresh_usernames(self):
-        index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
+        index = GlobalVar.player_state.index.val  # prendo l'index di questo stesso giocatore
         lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
-        self.username_sinistra.set_text(lista_player[(index + 1) % 4].username)
-        self.username_alto.set_text(lista_player[(index + 2) % 4].username)
-        self.username_destra.set_text(lista_player[(index + 3) % 4].username)
+        self.username_sinistra.set_text(lista_player[(index + 1) % 4].username.val)
+        self.username_alto.set_text(lista_player[(index + 2) % 4].username.val)
+        self.username_destra.set_text(lista_player[(index + 3) % 4].username.val)
 
     def refresh_turno(self):
-        turno = GlobalVar.game_state.turno  # prendo il numero del turno
-        if turno == GlobalVar.player_state.index:  # se tocca a questo stesso giocatore
+        turno = GlobalVar.game_state.turno.val  # prendo il numero del turno
+        if turno == GlobalVar.player_state.index.val:  # se tocca a questo stesso giocatore
             self.top_text.set_text('Tocca a te')
         else:
-            username = GlobalVar.game_state.lista_player[turno].username  # prendo il nome di chi deve giocare
+            username = GlobalVar.game_state.lista_player[turno].username.val  # prendo il nome di chi deve giocare
             self.top_text.set_text('Tocca a ' + username)  # scrivo a chi tocca
 
     def refresh_carte(self):
-        index = GlobalVar.player_state.index  # prendo l'index di questo stesso giocatore
+        index = GlobalVar.player_state.index.val  # prendo l'index di questo stesso giocatore
         lista_player = GlobalVar.game_state.lista_player  # prendo la lista dei giocatori del game_state
-        self.carta_basso.set_carta(lista_player[index].carta_giocata)
-        self.carta_sinistra.set_carta(lista_player[(index + 1) % 4].carta_giocata)
-        self.carta_alto.set_carta(lista_player[(index + 2) % 4].carta_giocata)
-        self.carta_destra.set_carta(lista_player[(index + 3) % 4].carta_giocata)
-        new_mano = GlobalVar.player_state.mano.copy()
+        self.carta_basso.set_carta(lista_player[index].carta_giocata.val)
+        self.carta_sinistra.set_carta(lista_player[(index + 1) % 4].carta_giocata.val)
+        self.carta_alto.set_carta(lista_player[(index + 2) % 4].carta_giocata.val)
+        self.carta_destra.set_carta(lista_player[(index + 3) % 4].carta_giocata.val)
+        new_mano = GlobalVar.player_state.mano.val.copy()
         if new_mano != self.lista_mano:
             self.lista_mano = new_mano
             self.lista_carte_mano = []
@@ -117,7 +117,7 @@ class GameGUI:
     def display(self):  # chiama tutte le cose da blittare
         self.screen.fill(NERO)  # copro frame prec
         self.display_top()
-        fase = GlobalVar.game_state.fase_gioco
+        fase = GlobalVar.game_state.fase_gioco.val
         if fase != ATTESA_GIOCATORI:
             self.display_usernames()
             self.display_punteggi()
@@ -161,3 +161,5 @@ class GameGUI:
     @staticmethod
     def gioca_la_prima():
         GlobalVar.player_controller.gioca_carta(GlobalVar.player_state.mano[0])
+        # non richiamo il metodo dalla classe anche se statico perché non posso importare qui PlayerController per
+        # evitare import circolari
