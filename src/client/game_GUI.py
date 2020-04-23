@@ -37,7 +37,7 @@ class GameGUI:
         self.punteggio_mio = 0
         self.storico = []
         self.carta_basso = CardGUI(VUOTO, (40 * self.w_perc, 50 * self.h_perc), (68, 100), activated=False)
-        self.lista_carte_mano = []
+        self.gui_carte_mano = []
         self.lista_mano = []
         self.btn_indietro = Button('<--', (0, 0), GlobalVar.player_controller.indietro, text_color=BIANCO, bg_color=BLU)
 
@@ -108,13 +108,14 @@ class GameGUI:
         new_mano = GlobalVar.player_state.mano.val.copy()
         if new_mano != self.lista_mano:
             self.lista_mano = new_mano
-            self.lista_carte_mano = []
+            self.gui_carte_mano = []
             self.refresh_mano()
 
     def refresh_mano(self):
         x = 30
-        for carta in self.lista_mano:
-            self.lista_carte_mano.append(CardGUI(carta, (x, 80 * self.h_perc), (68, 100)))
+        mano_ordinata = Card.sort_carte(self.lista_mano)
+        for carta in mano_ordinata:
+            self.gui_carte_mano.append(CardGUI(carta, (x, 80 * self.h_perc), (68, 100)))
             x += 78
 
     def display(self):  # chiama tutte le cose da blittare
@@ -153,12 +154,12 @@ class GameGUI:
         self.carta_sinistra.blit(self.screen)
         self.carta_alto.blit(self.screen)
         self.carta_destra.blit(self.screen)
-        for c in self.lista_carte_mano:
+        for c in self.gui_carte_mano:
             c.blit(self.screen)
 
     def mouse_click(self, pos):
         self.btn_indietro.check_click(pos)
-        for carta in self.lista_carte_mano:
+        for carta in self.gui_carte_mano:
             carta.check_click(pos)
 
     @staticmethod

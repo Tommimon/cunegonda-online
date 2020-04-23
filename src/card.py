@@ -39,14 +39,14 @@ class Card:
                 lista.remove(c)  # lo tolgo
 
     @staticmethod
-    def possiede_carta(giocatore, cercata):  # è un controllo anti bari di solito del server
-        for c in giocatore.player_state.mano.val:
+    def contiene_carta(mano, cercata):  # in queste funzioni mano è semplicemente una lista di carte
+        for c in mano:
             if c.seme == cercata.seme and c.valore == cercata.valore:
                 return True
         return False
 
     @staticmethod
-    def possiede_seme(mano, seme):
+    def contiene_seme(mano, seme):
         for c in mano:
             if c.seme == seme:
                 return True
@@ -56,7 +56,20 @@ class Card:
     def carta_permessa(mano, seme, carta):
         if seme is None:  # se seme non c'è viene interpretato come se è il primo a giocare quindi sempre True
             return True
-        if seme == carta.seme or not Card.possiede_seme(mano, seme):  # se seme giusto o se non ha quel seme
+        if seme == carta.seme or not Card.contiene_seme(mano, seme):  # se seme giusto o se non ha quel seme
             return True
         return False
+
+    @staticmethod
+    def sort_carte(lista):
+        ordinata = []
+        ordine_semi = [Card.CUORI, Card.FIORI, Card.QUADRI, Card.PICCHE]  # cambio ordine per estetica
+        for s in ordine_semi:
+            for v in Card.VALORI:
+                carta = Card(v, s)
+                if Card.contiene_carta(lista, carta):
+                    ordinata.append(carta)
+        return ordinata
+
+
 

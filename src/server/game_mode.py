@@ -58,7 +58,7 @@ class GameMode:
 
     def carta_client(self, index_g, carta):  # controlla in che fase siamo e se si può adoperare la carta e poi faù
         giocatore = self.lista_player[index_g]  # giocatore è un private player type
-        if Card.possiede_carta(giocatore, carta):  # se possiede davvero questa carta
+        if Card.contiene_carta(giocatore.player_state.mano.val, carta):  # se possiede davvero questa carta
             if self.game_state.fase_gioco.val == Fase.PASSAGGIO_CARTE:  # se le stiamo passando la metto nelle scambiate
                 if len(giocatore.player_state.scambiate.val) < 3:  # se non ne ho già scambiate 3
                     self.metti_in_passate(giocatore, carta)
