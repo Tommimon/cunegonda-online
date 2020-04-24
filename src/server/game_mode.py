@@ -6,9 +6,10 @@ from server.player_private import PlayerPrivate
 from server.deck import Deck, Card
 from threading import Timer
 from tcp_basics import safe_recv_var
+from socket import timeout
 
 # PARAMETRI
-TIMEOUT = 0.2
+TIMEOUT = 0.02
 
 
 class GameMode:
@@ -28,25 +29,60 @@ class GameMode:
         self.ultimo = 3
         self.seme_giro = None
         self.questo_giro = []
+        self.tutti_connessi = False  # vero sse ci sono 4 giocatori connessi
+        self.g_disconnessi = []
 
     def attesa(self):
         while len(self.lista_player) < 4:
-            socket, address = self.server_socket.accept()
-            socket.settimeout(TIMEOUT)
-            self.game_state.replicator.sockets.append(socket)  # ha effetto solo lato server
-            new_private = PlayerPrivate(socket, len(self.lista_player))
-            self.lista_player.append(new_private)
-            self.replicators.append(new_private.player_state.replicator)  # replicator del nuovo player state
-            print('conncted', address)
+            try:
+                new_socket, new_address = self.server_socket.accept()
+                new_socket.settimeout(TIMEOUT)
+                self.game_state.replicator.sockets.append(new_socket)  # ha effetto solo lato server
+                new_private = PlayerPrivate(new_socket, len(self.lista_player))
+                self.lista_player.append(new_private)
+                self.replicators.append(new_private.player_state.replicator)  # replicator del nuovo player state
+                print('conncted', new_address)
+            except timeout:
+                pass
+            safe_recv_var(self.replicators)  # comincio già a ricevere per i ceck
+        self.tutti_connessi = True
+        for g in self.game_state.lista_player:  # caccio una refreshata agli username
+            g.username.rep_val()
         self.dai_carte()
         self.game_loop()
+
+    def accetta_riconnessione(self):
+        if len(self.g_disconnessi) > 0:
+            try:
+                new_socket, address = self.server_socket.accept()
+                new_socket.settimeout(TIMEOUT)
+                self.game_state.replicator.sockets.append(new_socket)  # avevo rimosso il vecchio socket del disconnesso
+                private = self.g_disconnessi.pop()
+                private.socket = new_socket  # questo serve per poterlo ritogliere
+                private.player_state.replicator.sockets = [new_socket]  # avevo svuotato ore metto il nuovo
+                self.game_state.replicator.refresh_all()  # refresh game_state a tutti, (basterebbe questo nuovo player)
+                for p in self.game_state.lista_player:  # refresh tutti per tutti, non efficiente ma tanto viene
+                    p.replicator.refresh_all()          # eseguito solo se uno esce e rientra
+                private.player_state.replicator.refresh_all()  # refresho sono per il player giusto
+                if len(self.g_disconnessi) == 0:
+                    self.tutti_connessi = True
+            except timeout:
+                pass
+
+    def disconnetti(self, private):
+        sock = private.socket
+        self.game_state.replicator.sockets.remove(sock)  # tolgo il socket del disconnesso
+        private.player_state.replicator.sockets = []  # ce ne è uno solo quindi posso fare così
+        self.g_disconnessi.append(private)
+        self.game_state.lista_player[private.player_state.index.val].username.val = '---'  # così gli altri lo vedono
+        self.tutti_connessi = False
 
     def dai_carte(self):
         self.mazzo.carte = []
         self.mazzo.crea_carte()
         self.mazzo.mischia()
         for giocatore in self.lista_player:
-            carte = self.mazzo.pesca_n(13)
+            carte = self.mazzo.pesca_n(3)
             for c in carte:
                 giocatore.player_state.mano.val.append(c)
             giocatore.player_state.mano.rep_val()
@@ -55,6 +91,7 @@ class GameMode:
         self.game_state.fase_gioco.val = Fase.PASSAGGIO_CARTE
         while self.running:
             safe_recv_var(self.replicators)
+            self.accetta_riconnessione()
 
     def carta_client(self, index_g, carta):  # controlla in che fase siamo e se si può adoperare la carta e poi faù
         giocatore = self.lista_player[index_g]  # giocatore è un private player type

@@ -27,6 +27,8 @@ class PlayerState:
         self.index = ReplicatedVar(index, self.replicator, 'index', on_rep=self.recive_index)  # serve solo a client
         if auth:
             self.index.rep_val()  # perché il valore iniziale non si replica in automatico
+        self.param_ceck = ReplicatedVar(0, self.replicator, 'param_ceck', auth=(not self.replicator.auth),
+                                        on_rep=self.recv_ceck)
         self.mano = ReplicatedVar([], self.replicator, 'mano')
         # param_scelta come altre è una var fittizia usata solo come parametro per la funzione di on_rep questo serve
         # per poter eseguire la funzione dal lato di chi riceve la var anche se di fatto l'ho chiamata dall'altro lato
@@ -34,15 +36,25 @@ class PlayerState:
                                           on_rep=self.richiesta_carta_scelta)
         self.scambiate = ReplicatedVar([], self.replicator, 'scambiate')
 
-    def recive_index(self):
+    def recive_index(self):  # eseguito da client
         self.replicator.id = 'player_state' + str(self.index.val)
         self.username.val = client_gv.GlobalVar.game_instance.username
 
-    def richiesta_username(self):
-        server_gv.GlobalVar.game_state.lista_player[self.index.val].username.val = self.username.val
-        # gli do il valore che è appena arrivato ed è stato appena settato in self.username.val
-        print('set username', self.username.val)
+    def recv_ceck(self):  # su server
+        private = server_gv.GlobalVar.game_mode.lista_player[self.index.val]  # trovo il private per index
+        private.reset_timer()
+
+    def richiesta_username(self):  # eseguito da server
+        try:
+            stringa = str(self.username.val)
+            server_gv.GlobalVar.game_state.lista_player[self.index.val].username.val = stringa
+            # gli do il valore che è appena arrivato ed è stato appena settato in self.username.val
+            print('set username', stringa)
+        except:  # così sono sicuro che uno non possa far crashare il server da fuori
+            pass
 
     def richiesta_carta_scelta(self):  # eseguito su server a differenza degli altri tre
-        server_gv.GlobalVar.game_mode.carta_client(self.index.val, self.param_scelta.val)
-        # la gamemode si occupa di eseguire l'azione
+        if server_gv.GlobalVar.game_mode.tutti_connessi:  # se no la richiesta viene ignorata e va persa
+            if type(self.param_scelta.val) == Card:  # mi accerto che il valore sia una carta per evitare errori
+                server_gv.GlobalVar.game_mode.carta_client(self.index.val, self.param_scelta.val)
+                # la gamemode si occupa di eseguire l'azione

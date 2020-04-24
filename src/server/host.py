@@ -4,6 +4,8 @@ from replicated.game_state import GameState
 from server.global_var import GlobalVar
 import socket as sock
 
+# PARAMETRI
+TIMEOUT = 0.02
 SETTINGS_FILE = 'server_settings.txt'
 
 
@@ -15,6 +17,7 @@ while True:
 
     serverSocket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
     serverSocket.bind(serverAddress)
+    serverSocket.settimeout(TIMEOUT)
     serverSocket.listen()
     print('server ready')
 

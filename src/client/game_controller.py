@@ -4,11 +4,12 @@ from client.game_GUI import GameGUI
 from replicated.game_state import Fase
 from tcp_basics import safe_recv_var
 from client.global_var import GlobalVar
+from client.ceck_timer import CeckTimer
 import socket as sock
 import pygame as pg
 
 FPS = 60  # Frames per second.
-TIMEOUT = 0.2
+TIMEOUT = 0.02
 
 
 class GameController:
@@ -19,6 +20,7 @@ class GameController:
         self.replicators = [GlobalVar.player_state.replicator, GlobalVar.game_state.replicator]  # mi salvo tutti i...
         for g in GlobalVar.game_state.lista_player:  # replicator, nel for quelli dei player_public
             self.replicators.append(g.replicator)
+        self.ceck_timer = None
         self.connettiti()
         self.clock = pg.time.Clock()  # inizializzo clock
         self.running = True
@@ -28,7 +30,10 @@ class GameController:
             self.clock.tick(FPS)  # mi fa andare al giusto frame rate
             self.server_events()
             self.pygame_events()
-            self.GUI.display()
+            try:
+                self.GUI.display()
+            except TypeError:
+                pass
 
     def pygame_events(self):
         for event in pg.event.get():
@@ -45,6 +50,7 @@ class GameController:
 
     def indietro(self):
         GlobalVar.game_instance.next_schermata = 'menu'
+        self.ceck_timer.stop()
         self.quit()
 
     def connettiti(self):  # se non mi connetto al server torno al menu
@@ -53,6 +59,7 @@ class GameController:
             GlobalVar.game_state.replicator.sockets = [self.socket]
             GlobalVar.player_state.replicator.sockets = [self.socket]
             self.socket.settimeout(TIMEOUT)
+            self.ceck_timer = CeckTimer()  # si autostarta
         except:  # voglio che qualunque cosa succeda torni al menu e non crashi
             self.indietro()
 
