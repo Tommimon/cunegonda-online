@@ -6,6 +6,7 @@ from client.button import Button
 from client.text import Text
 from client.global_var import GlobalVar
 from replicated.game_state import Fase
+from pathlib import Path
 import pygame as pg
 
 
@@ -21,6 +22,7 @@ class GameGUI:
         self.h_perc = height / 100
         self.top_text = Text('', (20 * self.w_perc, 0), text_color=BIANCO, bg_color=NERO)
         self.text_partita = Text('', (80 * self.w_perc, 0), text_color=BIANCO, bg_color=NERO)
+        self.sfondo = self.init_sfondo((width, height))  # note the tuple
 
         self.username_sinistra = Text('', (0, 30 * self.h_perc), text_color=BLU, bg_color=NERO)
         self.username_alto = Text('', (40 * self.w_perc, 10 * self.h_perc), text_color=BLU, bg_color=NERO)
@@ -40,6 +42,12 @@ class GameGUI:
         self.gui_carte_mano = []
         self.lista_mano = []
         self.btn_indietro = Button('<--', (0, 0), GlobalVar.player_controller.indietro, text_color=BIANCO, bg_color=BLU)
+
+    def init_sfondo(self, dim):
+        path = Path('./res/tavolo.jpg')
+        sfondo = pg.image.load(str(path))
+        sfondo = pg.transform.scale(sfondo, dim)
+        return sfondo
 
     def refresh_top(self):  # in base alla fase chiama tutte le cose da aggiornare
         n_partita = GlobalVar.game_state.cont_partita.val
@@ -120,6 +128,7 @@ class GameGUI:
 
     def display(self):  # chiama tutte le cose da blittare
         self.screen.fill(NERO)  # copro frame prec
+        self.screen.blit(self.sfondo)
         self.display_top()
         fase = GlobalVar.game_state.fase_gioco.val
         if fase != Fase.ATTESA_GIOCATORI:

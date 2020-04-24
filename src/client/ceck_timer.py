@@ -24,4 +24,4 @@ class CeckTimer:
     @staticmethod
     def manda_ceck():
         GlobalVar.player_state.param_ceck.val = 0  # 0 significa senza errori ma l'importante è settarlo così comunica
-        print('ceck mandato')
+        # print('ceck mandato')

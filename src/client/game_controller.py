@@ -50,7 +50,10 @@ class GameController:
 
     def indietro(self):
         GlobalVar.game_instance.next_schermata = 'menu'
-        self.ceck_timer.stop()
+        try:
+            self.ceck_timer.stop()
+        except AttributeError:
+            pass
         self.quit()
 
     def connettiti(self):  # se non mi connetto al server torno al menu
@@ -60,7 +63,7 @@ class GameController:
             GlobalVar.player_state.replicator.sockets = [self.socket]
             self.socket.settimeout(TIMEOUT)
             self.ceck_timer = CeckTimer()  # si autostarta
-        except:  # voglio che qualunque cosa succeda torni al menu e non crashi
+        except sock.timeout:  # voglio che qualunque cosa succeda torni al menu e non crashi
             self.indietro()
 
     @staticmethod
