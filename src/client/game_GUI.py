@@ -128,7 +128,7 @@ class GameGUI:
 
     def display(self):  # chiama tutte le cose da blittare
         self.screen.fill(NERO)  # copro frame prec
-        self.screen.blit(self.sfondo)
+        self.screen.blit(self.sfondo, (0, 0))
         self.display_top()
         fase = GlobalVar.game_state.fase_gioco.val
         if fase != Fase.ATTESA_GIOCATORI:

@@ -30,10 +30,7 @@ class GameController:
             self.clock.tick(FPS)  # mi fa andare al giusto frame rate
             self.server_events()
             self.pygame_events()
-            try:
-                self.GUI.display()
-            except TypeError:
-                pass
+            self.GUI.display()
 
     def pygame_events(self):
         for event in pg.event.get():
@@ -51,7 +48,7 @@ class GameController:
     def indietro(self):
         GlobalVar.game_instance.next_schermata = 'menu'
         try:
-            self.ceck_timer.stop()
+            self.ceck_timer.stop()  # se non mi connetto questo non è stato inittato
         except AttributeError:
             pass
         self.quit()
