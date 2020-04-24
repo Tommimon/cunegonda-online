@@ -1,6 +1,6 @@
 from socket import socket, AF_INET, SOCK_STREAM, timeout
 from varname import varname
-from json import dumps, loads
+from json import dumps, loads, JSONDecodeError
 from data_classes import data_classes
 
 
@@ -193,11 +193,14 @@ class ReplicatedVar:  # ogni volta che modifico questa var usa il Replicator per
             return data
 
     def custom_load(self, stringa):
-        data = loads(stringa)
-        obj = ReplicatedVar.decode(data)
-        self.set_no_rep(obj)
-        if self.on_rep is not None:
-            self.on_rep()  # attiva azione da fare quando viene modificato il valore da chi ha auth
+        try:
+            data = loads(stringa)
+            obj = ReplicatedVar.decode(data)
+            self.set_no_rep(obj)
+            if self.on_rep is not None:
+                self.on_rep()  # attiva azione da fare quando viene modificato il valore da chi ha auth
+        except JSONDecodeError:
+            pass  # il valore viene ignorato e la variabile non aggiornata
 
     def calcola_auth(self):  # si occupa di gestire le contraddizioni tra auth della var e del replicator
         if self.auth is None:

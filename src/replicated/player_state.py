@@ -45,13 +45,10 @@ class PlayerState:
         private.reset_timer()
 
     def richiesta_username(self):  # eseguito da server
-        try:
-            stringa = str(self.username.val)
-            server_gv.GlobalVar.game_state.lista_player[self.index.val].username.val = stringa
-            # gli do il valore che è appena arrivato ed è stato appena settato in self.username.val
-            print('set username', stringa)
-        except:  # così sono sicuro che uno non possa far crashare il server da fuori
-            pass
+        stringa = str(self.username.val)  # così sono sicuro che uno non possa far crashare il server da fuori
+        server_gv.GlobalVar.game_state.lista_player[self.index.val].username.val = stringa
+        # gli do il valore che è appena arrivato ed è stato appena settato in self.username.val
+        print('set username', stringa)
 
     def richiesta_carta_scelta(self):  # eseguito su server a differenza degli altri tre
         if server_gv.GlobalVar.game_mode.tutti_connessi:  # se no la richiesta viene ignorata e va persa
