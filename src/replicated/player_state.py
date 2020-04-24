@@ -14,7 +14,7 @@ except ImportError:
 
 
 class PlayerState:
-    def __init__(self, socket=None, auth=False, index=None):
+    def __init__(self, auth=False, index=None):
         # devo preoccuparmi di avere un id_rep diverso per ogni player state lato server
         if auth:  # significa se è server
             id_rep = 'player_state' + str(index)
@@ -33,7 +33,6 @@ class PlayerState:
         self.param_scelta = ReplicatedVar(Card(), self.replicator, 'param_scelta', auth=(not self.replicator.auth),
                                           on_rep=self.richiesta_carta_scelta)
         self.scambiate = ReplicatedVar([], self.replicator, 'scambiate')
-        self.socket = socket  # usato solo lato server
 
     def recive_index(self):
         self.replicator.id = 'player_state' + str(self.index.val)
