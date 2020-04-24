@@ -104,6 +104,11 @@ class Replicator:  # contiene le info per replicare le variabili
         return True  # anche se non modifico perché non ho auth oppure non esiste la var ma comunque questo era il
         # replicator giusto quindi restituisco True così capisce che non deve cercare in altri
 
+    def refresh_all(self):
+        for v in self.vars:
+            if v.calcola_auth():  # per ogni var su cui ho auth
+                v.rep_val()  # refresho per tutti
+
 
 class NoAuthority(Exception):  # Raisato quando provo a modificare una var su cui non ho auth
     pass
