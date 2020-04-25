@@ -2,6 +2,7 @@
 
 from replicated.player_public import PlayerPublic
 from tcp_basics import Replicator, ReplicatedVar
+from card import Card
 
 
 class Fase:
@@ -18,6 +19,7 @@ class GameState:
         self.cont_partita = ReplicatedVar(1, self.replicator, 'cont_partita')
         self.turno = ReplicatedVar(0, self.replicator, 'turno')
         self.fase_gioco = ReplicatedVar(Fase.ATTESA_GIOCATORI, self.replicator, 'fase_gioco')
+        self.seme_primo = ReplicatedVar(Card.NESSUN_SEME, self.replicator, 'seme_primo')  # il seme del giro
         self.lista_player = []  # tecnicamente ognuno si fa la sua e non è replicata ma tutti mettono gli stessi valori
         # per ogni giocatore quindi è come se lo fosse
         self.add_giocatori()

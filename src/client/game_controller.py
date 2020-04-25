@@ -15,6 +15,7 @@ TIMEOUT = 0.02
 class GameController:
     def __init__(self):
         GlobalVar.player_controller = self
+        self.running = True
         self.GUI = GameGUI()  # creo HUD e mi salvo una ref
         self.socket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
         self.replicators = [GlobalVar.player_state.replicator, GlobalVar.game_state.replicator]  # mi salvo tutti i...
@@ -23,7 +24,6 @@ class GameController:
         self.ceck_timer = None
         self.connettiti()
         self.clock = pg.time.Clock()  # inizializzo clock
-        self.running = True
 
     def loop(self):
         while self.running:
@@ -48,6 +48,10 @@ class GameController:
             self.ceck_timer.stop()  # se non mi connetto questo non è stato inittato
         except AttributeError:
             pass
+        try:
+            self.GUI.timer_evidenz.cancel()  # spegne timer evidenziatore
+        except AttributeError:
+            pass
 
     def indietro(self):
         GlobalVar.game_instance.next_schermata = 'menu'
@@ -60,8 +64,11 @@ class GameController:
             GlobalVar.player_state.replicator.sockets = [self.socket]
             self.socket.settimeout(TIMEOUT)
             self.ceck_timer = CeckTimer()  # si autostarta
-        except sock.timeout:  # voglio che qualunque cosa succeda torni al menu e non crashi
+        except TimeoutError:  # voglio che qualunque cosa succeda torni al menu e non crashi
             self.indietro()
+        except ConnectionRefusedError:
+            self.indietro()
+
 
     @staticmethod
     def gioca_carta(carta):

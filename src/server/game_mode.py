@@ -101,8 +101,8 @@ class GameMode:
                     self.metti_in_passate(giocatore, carta)
             elif self.game_state.fase_gioco.val == Fase.GIOCO and (not self.pausa):  # se stiamo giocando e non è pausa
                 if index_g == self.game_state.turno.val:  # se è il suo turno
-                    if (index_g == self.primo or
-                            Card.carta_permessa(giocatore.player_state.mano.val, self.seme_giro, carta)):
+                    if (index_g == self.primo or Card.carta_permessa(giocatore.player_state.mano.val,
+                                                                     self.game_state.seme_primo.val, carta)):
                         self.metti_in_giocata(index_g, carta)
 
     def metti_in_giocata(self, index, carta):
@@ -111,7 +111,7 @@ class GameMode:
         self.game_state.lista_player[index].carta_giocata.val = carta  # la metto nelle giocate
         self.questo_giro.append(carta)  # mi salvo le carte giocate nella gamemode
         if self.game_state.turno.val == self.primo:
-            self.seme_giro = carta.seme  # il primo decide il seme del giro
+            self.game_state.seme_primo.val = carta.seme  # il primo decide il seme del giro
         if self.game_state.turno.val == self.ultimo:
             self.risolvi_questo_giro()
         else:
@@ -155,7 +155,7 @@ class GameMode:
         val_max = self.questo_giro[0].valore  # trovo carta vincente
         index_max = 0
         for carta in self.questo_giro:
-            if carta.seme == self.seme_giro:  # se è seme che comanda
+            if carta.seme == self.game_state.seme_primo.val:  # se è seme che comanda
                 if carta.valore > val_max:  # se è più grande del max
                     val_max = carta.valore
                     index_max = self.questo_giro.index(carta)
@@ -213,6 +213,7 @@ class GameMode:
         else:
             self.pausa = False
             self.game_state.turno.val = self.primo
+            self.game_state.seme_primo.val = Card.NESSUN_SEME
 
     def fine_partita(self):
         self.game_state.cont_partita.val = self.game_state.cont_partita.val + 1

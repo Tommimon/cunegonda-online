@@ -54,7 +54,7 @@ class Card:
 
     @staticmethod
     def carta_permessa(mano, seme, carta):
-        if seme is None:  # se seme non c'è viene interpretato come se è il primo a giocare quindi sempre True
+        if seme is Card.NESSUN_SEME:  # viene interpretato come se è il primo a giocare quindi sempre True
             return True
         if seme == carta.seme or not Card.contiene_seme(mano, seme):  # se seme giusto o se non ha quel seme
             return True
@@ -70,6 +70,3 @@ class Card:
                 if Card.contiene_carta(lista, carta):
                     ordinata.append(carta)
         return ordinata
-
-
-

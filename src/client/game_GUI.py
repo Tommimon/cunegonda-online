@@ -7,11 +7,13 @@ from client.text import Text
 from client.global_var import GlobalVar
 from replicated.game_state import Fase
 from pathlib import Path
+from threading import Timer
 import pygame as pg
 
 
 VUOTO = Card()  # corrisponde a carta vuota
 PADDING_PERC = 2  # percentuale rispetto all'altezza, distanza tra le carte
+DELAY_EVIDENZ = 1  # tempo per cui resta acceso
 
 
 class GameGUI:
@@ -44,6 +46,9 @@ class GameGUI:
         self.gui_carte_mano = []
         self.lista_mano = []
         self.btn_indietro = Button('<', (0, 0), GlobalVar.player_controller.indietro, text_color=ROSSO, bg_color=VERDE)
+        self.mostra_evidenz = True  # con timer vero falso vero falso
+        self.timer_evidenz = Timer(DELAY_EVIDENZ, self.reset_timer)
+        self.timer_evidenz.start()
 
     @staticmethod
     def init_sfondo(dim):
@@ -169,7 +174,7 @@ class GameGUI:
         self.carta_alto.blit(self.screen)
         self.carta_destra.blit(self.screen)
         for c in self.gui_carte_mano:
-            c.blit(self.screen)
+            c.blit(self.screen, self.mostra_evidenz)
 
     def mouse_click(self, pos):
         self.btn_indietro.check_click(pos)
@@ -181,3 +186,9 @@ class GameGUI:
         GlobalVar.player_controller.gioca_carta(GlobalVar.player_state.mano[0])
         # non richiamo il metodo dalla classe anche se statico perché non posso importare qui PlayerController per
         # evitare import circolari
+
+    def reset_timer(self):
+        if GlobalVar.player_controller.running:
+            self.mostra_evidenz = not self.mostra_evidenz
+            self.timer_evidenz = Timer(DELAY_EVIDENZ, self.reset_timer)
+            self.timer_evidenz.start()

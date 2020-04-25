@@ -4,6 +4,7 @@ import pygame as pg
 from pathlib import Path
 from card import Card
 from client.global_var import GlobalVar
+from replicated.game_state import Fase
 
 
 class CardGUI:
@@ -17,7 +18,13 @@ class CardGUI:
         self.center = center
         self.set_carta(carta)
         self.visible = True
-        self.activated = active
+        self.active = active
+        self.evidenziatore = self.get_evidenziatore()
+
+    def get_evidenziatore(self):
+        path = Path('./res/evidenziatore.png')
+        evidenz = pg.image.load(str(path))
+        return pg.transform.scale(evidenz, (int(self.dim[0] * 1.118), int(self.dim[1] * 1.118)))
 
     def nome_carta(self):  # restituisce nome file es: valore_seme.jpeg
         if self._carta.valore < 11:  # se è un numero
@@ -62,12 +69,19 @@ class CardGUI:
                 self.rect = self._immagine.get_rect()
                 self.rect.topleft = self.center_pos()
 
-    def blit(self, screen):
+    def blit(self, screen, mostra_evidenz=False):
         if self.visible and not self.vuoto:
+            seme = GlobalVar.game_state.seme_primo.val
+            mano = GlobalVar.player_state.mano.val
+            turno = GlobalVar.game_state.turno.val
+            index = GlobalVar.player_state.index.val
+            if (mostra_evidenz and Card.carta_permessa(mano, seme, self._carta) and turno == index and self.active
+                    and GlobalVar.game_state.fase_gioco.val == Fase.GIOCO):
+                screen.blit(self.evidenziatore, self.pos_evidenz())
             screen.blit(self._immagine, self.center_pos())
 
     def check_click(self, mouse_pos):
-        if self.activated and not self.vuoto:
+        if self.active and not self.vuoto:
             if self.rect.collidepoint(mouse_pos):
                 GlobalVar.player_controller.gioca_carta(self._carta)
 
@@ -78,3 +92,7 @@ class CardGUI:
             return pos_x - width / 2, self._pos[1]
         else:
             return self._pos
+
+    def pos_evidenz(self):
+        pos = self.center_pos()
+        return pos[0] - self.dim[0] * 0.059, pos[1] - self.dim[1] * 0.05  # tolgo la metà della dif espressa in perc
