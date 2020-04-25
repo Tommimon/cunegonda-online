@@ -166,7 +166,7 @@ class GameMode:
     def risolvi_questo_giro(self):
         punteggio = self.calcola_punteggio()
         vincitore = self.trova_vincitore()
-        print('punteggio: ' + str(punteggio) + ' a ' + str(vincitore))
+        print('points: ' + str(punteggio) + ' to ' + str(vincitore))
         self.primo = vincitore
         self.ultimo = (self.primo - 1) % 4
         self.pausa = True

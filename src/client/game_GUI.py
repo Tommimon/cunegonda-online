@@ -57,9 +57,9 @@ class GameGUI:
         self.text_partita.set_text('Game ' + str(n_partita))
         fase = GlobalVar.game_state.fase_gioco.val
         if fase == Fase.ATTESA_GIOCATORI:  # testo top
-            self.top_text.set_text('In attesa di altri giocatori')
+            self.top_text.set_text('Waiting for players...')
         elif fase == Fase.PASSAGGIO_CARTE:
-            self.top_text.set_text('Seleziona le carte da passare')
+            self.top_text.set_text('Choose the cards to pass')
         elif fase == Fase.GIOCO:
             self.refresh_turno()
 
@@ -73,7 +73,7 @@ class GameGUI:
             delta = punti - self.punteggio_mio
             self.punteggio_mio = punti  # aggiorno
             self.storico.append(delta)  # aggiungo punti fatti in questa allo storico
-            self.top_text.set_text('Hai fatto ' + str(delta) + ' punti in questa partita')
+            self.top_text.set_text('You get ' + str(delta) + ' points for this game')
         elif fase == Fase.PASSAGGIO_CARTE:
             self.punt_calcolato = False  # a fine partita viene calcolato e messo true fino alla prox passaggio_carte
 
@@ -104,10 +104,10 @@ class GameGUI:
     def refresh_turno(self):
         turno = GlobalVar.game_state.turno.val  # prendo il numero del turno
         if turno == GlobalVar.player_state.index.val:  # se tocca a questo stesso giocatore
-            self.top_text.set_text('Tocca a te')
+            self.top_text.set_text('Your turn')
         else:
             username = GlobalVar.game_state.lista_player[turno].username.val  # prendo il nome di chi deve giocare
-            self.top_text.set_text('Tocca a ' + username)  # scrivo a chi tocca
+            self.top_text.set_text(username + "'s turn")  # scrivo a chi tocca
 
     def refresh_carte(self):
         index = GlobalVar.player_state.index.val  # prendo l'index di questo stesso giocatore
