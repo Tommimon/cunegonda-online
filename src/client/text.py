@@ -7,12 +7,13 @@ FONT = 'freesansbold.ttf'
 
 
 class Text:
-    def __init__(self, text, pos, size=32, text_color=NERO, bg_color=BIANCO, bold=True):
+    def __init__(self, text, pos, size=32, text_color=NERO, bg_color=BIANCO, bold=True, center=False):
         self._pos = pos
         self._text = text
         self._text_color = text_color
         self._bg_color = bg_color
         self.bold = bold
+        self.center = center
         self.visible = True
         self.font = pg.font.Font(FONT, size)
         self.surface = None
@@ -23,7 +24,8 @@ class Text:
 
     def blit(self, screen):
         if self.visible:
-            screen.blit(self.surface, self._pos)
+            pos_corretta = self.center_pos()
+            screen.blit(self.surface, pos_corretta)
 
     def set_text(self, text):
         self._text = text
@@ -41,6 +43,10 @@ class Text:
         self._pos = pos
         self._refresh()
 
-    def center(self, w_perc):  # modifico la pos orizzontale per centrare il testo
+    def center_pos(self):  # modifico la pos orizzontale per centrare il testo se sereve se no da la pos normale
         width = self.surface.get_width()
-        self.set_pos((50*w_perc - width/2, self._pos[1]))
+        if self.center:
+            pos_x = self._pos[0]
+            return pos_x - width / 2, self._pos[1]
+        else:
+            return self._pos

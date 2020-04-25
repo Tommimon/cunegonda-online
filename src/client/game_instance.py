@@ -11,7 +11,10 @@ import pygame as pg
 
 # PARAMETRI
 SETTINGS_FILE = 'client_settings.txt'
-RISOLUZIONE = (1080, 720)
+
+# RISOLUZIONE
+# in resizable 4/5
+# in fullscreen 5/6
 
 
 class GameInstance:
@@ -20,14 +23,15 @@ class GameInstance:
         settings = SettingsReader(SETTINGS_FILE)  # leggo le impostazioni da file
         self.username = settings.get_val('username')
         self.server_address = (settings.get_val('server_ip'), int(settings.get_val('server_port')))
-        GameInstance.crea_screen()
+        self.res = (int(settings.get_val('resolution_x')), int(settings.get_val('resolution_y')))
+        self.crea_screen()
         self.next_schermata = None  # se c'è è una stringa con il nome dello schermo
 
-    @staticmethod
-    def crea_screen():
+    def crea_screen(self):
         succes, fail = pg.init()
         print('pygame init error:', fail)
-        GlobalVar.screen = pg.display.set_mode(RISOLUZIONE)  # mostro schermo
+        GlobalVar.screen = pg.display.set_mode(self.res, pg.FULLSCREEN)  # creo lo schermo
+        # GlobalVar.screen = pg.display.set_mode((1500, 750))  # for debug
         pg.display.set_caption('Cunegonda')
 
     def gestisci_schermate(self):  # regola il passaggio tra le varie schermate

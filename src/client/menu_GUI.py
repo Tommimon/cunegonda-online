@@ -14,20 +14,14 @@ class MenuGUI:
         width, height = self.screen.get_size()
         self.w_perc = width / 100  # mi salvo misure percentuali dello schermo
         self.h_perc = height / 100
-        self.titolo = Text('Main Menu', (0, 10 * self.h_perc), bg_color=NERO, text_color=BIANCO)
-        self.btn_quit = Button('Quit', (0, 80 * self.h_perc), GlobalVar.player_controller.quit,
-                               bg_color=ROSSO, text_color=BIANCO)
-        self.btn_connect = Button('Connect', (0, 20 * self.h_perc), MenuGUI.switch_to_game,
-                                  bg_color=VERDE, text_color=BIANCO)
-        self.centra_menu()
-
-    def centra_menu(self):  # semplicemente mette al centro tutti gli elementi, ho fatto metodo apposito per fare ordine
-        self.titolo.center(self.w_perc)
-        self.btn_quit.center(self.w_perc)
-        self.btn_connect.center(self.w_perc)
+        self.titolo = Text('Main Menu', (50 * self.w_perc, 10 * self.h_perc), bg_color=ROSSO, text_color=VERDE, center=True)
+        self.btn_quit = Button('Quit', (50 * self.w_perc, 80 * self.h_perc), GlobalVar.player_controller.quit,
+                               bg_color=VERDE, text_color=NERO, center=True)
+        self.btn_connect = Button('Connect', (50 * self.w_perc, 20 * self.h_perc), MenuGUI.switch_to_game,
+                                  bg_color=VERDE, text_color=NERO, center=True)
 
     def display(self):
-        self.screen.fill(NERO)  # copro frame prec
+        self.screen.fill(ROSSO)  # copro frame prec
         self.titolo.blit(self.screen)
         self.btn_quit.blit(self.screen)
         self.btn_connect.blit(self.screen)

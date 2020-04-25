@@ -44,13 +44,13 @@ class GameController:
 
     def quit(self):
         self.running = False
-
-    def indietro(self):
-        GlobalVar.game_instance.next_schermata = 'menu'
         try:
             self.ceck_timer.stop()  # se non mi connetto questo non è stato inittato
         except AttributeError:
             pass
+
+    def indietro(self):
+        GlobalVar.game_instance.next_schermata = 'menu'
         self.quit()
 
     def connettiti(self):  # se non mi connetto al server torno al menu

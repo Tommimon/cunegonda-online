@@ -18,32 +18,33 @@ class GameGUI:
         GlobalVar.player_HUD = self
         self.screen = GlobalVar.screen  # mi salvo una ref allo screen
         width, height = self.screen.get_size()
-        self.w_perc = width / 100  # mi salvo misure percentuali dello schermo
-        self.h_perc = height / 100
-        self.top_text = Text('', (20 * self.w_perc, 0), text_color=BIANCO, bg_color=NERO)
-        self.text_partita = Text('', (80 * self.w_perc, 0), text_color=BIANCO, bg_color=NERO)
-        self.sfondo = self.init_sfondo((width, height))  # note the tuple
+        self.w_p = width / 100  # mi salvo misure percentuali dello schermo
+        self.h_p = height / 100
+        self.top_text = Text('', (20 * self.w_p, 0), text_color=BIANCO, bg_color=NERO)
+        self.text_partita = Text('', (80 * self.w_p, 0), text_color=BIANCO, bg_color=NERO)
+        self.sfondo = GameGUI.init_sfondo((width, height))  # note the tuple
 
-        self.username_sinistra = Text('', (0, 30 * self.h_perc), text_color=BLU, bg_color=NERO)
-        self.username_alto = Text('', (40 * self.w_perc, 10 * self.h_perc), text_color=BLU, bg_color=NERO)
-        self.username_destra = Text('', (80 * self.w_perc, 30 * self.h_perc), text_color=BLU, bg_color=NERO)
-        self.punteggio_sinistra = Text('', (0, 25 * self.h_perc), text_color=ROSSO, bg_color=NERO)
-        self.punteggio_alto = Text('', (40 * self.w_perc, 5 * self.h_perc), text_color=ROSSO, bg_color=NERO)
-        self.punteggio_destra = Text('', (80 * self.w_perc, 25 * self.h_perc), text_color=ROSSO, bg_color=NERO)
-        self.carta_sinistra = CardGUI(VUOTO, (0, 40 * self.h_perc), (68, 100), activated=False)
-        self.carta_alto = CardGUI(VUOTO, (40 * self.w_perc, 20 * self.h_perc), (68, 100), activated=False)
-        self.carta_destra = CardGUI(VUOTO, (80 * self.w_perc, 40 * self.h_perc), (68, 100), activated=False)
+        self.username_sinistra = Text('', (13 * self.w_p, 28 * self.h_p), text_color=VERDE, bg_color=ROSSO, center=True)
+        self.username_alto = Text('', (50 * self.w_p, 10 * self.h_p), text_color=VERDE, bg_color=ROSSO, center=True)
+        self.username_destra = Text('', (87 * self.w_p, 28 * self.h_p), text_color=VERDE, bg_color=ROSSO, center=True)
+        self.punteggio_sinistra = Text('', (13 * self.w_p, 23 * self.h_p), text_color=ROSSO, bg_color=NERO, center=True)
+        self.punteggio_alto = Text('', (50 * self.w_p, 5 * self.h_p), text_color=ROSSO, bg_color=NERO, center=True)
+        self.punteggio_destra = Text('', (87 * self.w_p, 23 * self.h_p), text_color=ROSSO, bg_color=NERO, center=True)
+        self.carta_sinistra = CardGUI(VUOTO, (20 * self.w_p, 40 * self.h_p), (68, 100), activated=False)
+        self.carta_alto = CardGUI(VUOTO, (50 * self.w_p, 20 * self.h_p), (68, 100), activated=False)
+        self.carta_destra = CardGUI(VUOTO, (80 * self.w_p, 40 * self.h_p), (68, 100), activated=False)
 
-        self.text_punteggio = Text('', (0, 70 * self.h_perc), text_color=VERDE, bg_color=NERO)
+        self.text_punteggio = Text('', (0, 95 * self.h_p), text_color=ROSSO, bg_color=NERO)
         self.punt_calcolato = True  # durante il passaggio_carte metto True a fine partita calcolo e metto False
         self.punteggio_mio = 0
         self.storico = []
-        self.carta_basso = CardGUI(VUOTO, (40 * self.w_perc, 50 * self.h_perc), (68, 100), activated=False)
+        self.carta_basso = CardGUI(VUOTO, (40 * self.w_p, 50 * self.h_p), (68, 100), activated=False)
         self.gui_carte_mano = []
         self.lista_mano = []
-        self.btn_indietro = Button('<--', (0, 0), GlobalVar.player_controller.indietro, text_color=BIANCO, bg_color=BLU)
+        self.btn_indietro = Button('<', (0, 0), GlobalVar.player_controller.indietro, text_color=ROSSO, bg_color=VERDE)
 
-    def init_sfondo(self, dim):
+    @staticmethod
+    def init_sfondo(dim):
         path = Path('./res/tavolo.jpg')
         sfondo = pg.image.load(str(path))
         sfondo = pg.transform.scale(sfondo, dim)
@@ -123,7 +124,7 @@ class GameGUI:
         x = 30
         mano_ordinata = Card.sort_carte(self.lista_mano)
         for carta in mano_ordinata:
-            self.gui_carte_mano.append(CardGUI(carta, (x, 80 * self.h_perc), (68, 100)))
+            self.gui_carte_mano.append(CardGUI(carta, (x, 80 * self.h_p), (68, 100)))
             x += 78
 
     def display(self):  # chiama tutte le cose da blittare
