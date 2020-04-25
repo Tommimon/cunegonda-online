@@ -12,7 +12,6 @@ import pygame as pg
 
 
 VUOTO = Card()  # corrisponde a carta vuota
-PADDING_PERC = 2  # percentuale rispetto all'altezza, distanza tra le carte
 DELAY_EVIDENZ = 1  # tempo per cui resta acceso
 
 
@@ -23,7 +22,7 @@ class GameGUI:
         width, height = self.screen.get_size()
         self.w_p = width / 100  # mi salvo misure percentuali dello schermo
         self.h_p = height / 100
-        self.dim_card = (int(12.75 * self.h_p), int(18.75 * self.h_p))
+        self.dim_card = self.trova_dim_carte(width)
         self.top_text = Text('', (20 * self.w_p, 0), text_color=BIANCO, bg_color=NERO)
         self.text_partita = Text('', (80 * self.w_p, 0), text_color=BIANCO, bg_color=NERO)
         self.sfondo = GameGUI.init_sfondo((width, height))  # note the tuple
@@ -56,6 +55,17 @@ class GameGUI:
         sfondo = pg.image.load(str(path))
         sfondo = pg.transform.scale(sfondo, dim)
         return sfondo
+
+    def trova_dim_carte(self, screen_width):
+        width_prevista = int(12.75 * self.h_p)
+        max_width = screen_width // 14
+        if width_prevista <= max_width:
+            print('normal card size')
+            return width_prevista, int(18.75 * self.h_p)
+        else:
+            h = int(max_width / 12.75 * 18.75)  # prendo h in modo da rispettare le proporzioni
+            print('card resized')
+            return max_width, h
 
     def refresh_top(self):  # in base alla fase chiama tutte le cose da aggiornare
         n_partita = GlobalVar.game_state.cont_partita.val
@@ -128,8 +138,8 @@ class GameGUI:
             self.refresh_mano()
 
     def refresh_mano(self):
-        padding = PADDING_PERC * self.h_p
-        x = padding * 2
+        padding = self.dim_card[0] / 14
+        x = padding
         delta = self.dim_card[0] + padding
         mano_ordinata = Card.sort_carte(self.lista_mano)
         for carta in mano_ordinata:
