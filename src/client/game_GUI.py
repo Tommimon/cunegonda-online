@@ -11,6 +11,7 @@ import pygame as pg
 
 
 VUOTO = Card()  # corrisponde a carta vuota
+PADDING_PERC = 2  # percentuale rispetto all'altezza, distanza tra le carte
 
 
 class GameGUI:
@@ -20,25 +21,26 @@ class GameGUI:
         width, height = self.screen.get_size()
         self.w_p = width / 100  # mi salvo misure percentuali dello schermo
         self.h_p = height / 100
+        self.dim_card = (int(12.75 * self.h_p), int(18.75 * self.h_p))
         self.top_text = Text('', (20 * self.w_p, 0), text_color=BIANCO, bg_color=NERO)
         self.text_partita = Text('', (80 * self.w_p, 0), text_color=BIANCO, bg_color=NERO)
         self.sfondo = GameGUI.init_sfondo((width, height))  # note the tuple
 
         self.username_sinistra = Text('', (13 * self.w_p, 28 * self.h_p), text_color=VERDE, bg_color=ROSSO, center=True)
-        self.username_alto = Text('', (50 * self.w_p, 10 * self.h_p), text_color=VERDE, bg_color=ROSSO, center=True)
+        self.username_alto = Text('', (50 * self.w_p, 11 * self.h_p), text_color=VERDE, bg_color=ROSSO, center=True)
         self.username_destra = Text('', (87 * self.w_p, 28 * self.h_p), text_color=VERDE, bg_color=ROSSO, center=True)
-        self.punteggio_sinistra = Text('', (13 * self.w_p, 23 * self.h_p), text_color=ROSSO, bg_color=NERO, center=True)
-        self.punteggio_alto = Text('', (50 * self.w_p, 5 * self.h_p), text_color=ROSSO, bg_color=NERO, center=True)
-        self.punteggio_destra = Text('', (87 * self.w_p, 23 * self.h_p), text_color=ROSSO, bg_color=NERO, center=True)
-        self.carta_sinistra = CardGUI(VUOTO, (20 * self.w_p, 40 * self.h_p), (68, 100), activated=False)
-        self.carta_alto = CardGUI(VUOTO, (50 * self.w_p, 20 * self.h_p), (68, 100), activated=False)
-        self.carta_destra = CardGUI(VUOTO, (80 * self.w_p, 40 * self.h_p), (68, 100), activated=False)
+        self.punteggio_sinistra = Text('', (13 * self.w_p, 21 * self.h_p), 48, ROSSO, NERO_TRASP, center=True)
+        self.punteggio_alto = Text('', (50 * self.w_p, 4 * self.h_p), 48, ROSSO, NERO_TRASP, center=True)
+        self.punteggio_destra = Text('', (87 * self.w_p, 21 * self.h_p), 48, ROSSO, NERO_TRASP, center=True)
+        self.carta_sinistra = CardGUI(VUOTO, (13 * self.w_p, 40 * self.h_p), self.dim_card, active=False, center=True)
+        self.carta_alto = CardGUI(VUOTO, (50 * self.w_p, 20 * self.h_p), self.dim_card, active=False, center=True)
+        self.carta_destra = CardGUI(VUOTO, (87 * self.w_p, 40 * self.h_p), self.dim_card, active=False, center=True)
 
-        self.text_punteggio = Text('', (0, 95 * self.h_p), text_color=ROSSO, bg_color=NERO)
+        self.text_punteggio = Text('', (0, 75 * self.h_p), text_color=ROSSO, bg_color=NERO_TRASP)
         self.punt_calcolato = True  # durante il passaggio_carte metto True a fine partita calcolo e metto False
         self.punteggio_mio = 0
         self.storico = []
-        self.carta_basso = CardGUI(VUOTO, (40 * self.w_p, 50 * self.h_p), (68, 100), activated=False)
+        self.carta_basso = CardGUI(VUOTO, (50 * self.w_p, 55 * self.h_p), self.dim_card, active=False, center=True)
         self.gui_carte_mano = []
         self.lista_mano = []
         self.btn_indietro = Button('<', (0, 0), GlobalVar.player_controller.indietro, text_color=ROSSO, bg_color=VERDE)
@@ -121,11 +123,13 @@ class GameGUI:
             self.refresh_mano()
 
     def refresh_mano(self):
-        x = 30
+        padding = PADDING_PERC * self.h_p
+        x = padding * 2
+        delta = self.dim_card[0] + padding
         mano_ordinata = Card.sort_carte(self.lista_mano)
         for carta in mano_ordinata:
-            self.gui_carte_mano.append(CardGUI(carta, (x, 80 * self.h_p), (68, 100)))
-            x += 78
+            self.gui_carte_mano.append(CardGUI(carta, (x, 80 * self.h_p), self.dim_card))
+            x += delta
 
     def display(self):  # chiama tutte le cose da blittare
         self.screen.fill(NERO)  # copro frame prec

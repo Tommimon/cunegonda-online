@@ -82,7 +82,7 @@ class GameMode:
         self.mazzo.crea_carte()
         self.mazzo.mischia()
         for giocatore in self.lista_player:
-            carte = self.mazzo.pesca_n(3)
+            carte = self.mazzo.pesca_n(13)
             for c in carte:
                 giocatore.player_state.mano.val.append(c)
             giocatore.player_state.mano.rep_val()

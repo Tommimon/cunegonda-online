@@ -7,16 +7,17 @@ from client.global_var import GlobalVar
 
 
 class CardGUI:
-    def __init__(self, carta, pos, dim, activated=True):
+    def __init__(self, carta, pos, dim, active=True, center=False):
         self._pos = pos
         self.dim = dim
         self._carta = None
         self.vuoto = None
         self._immagine = None
         self.rect = None
+        self.center = center
         self.set_carta(carta)
         self.visible = True
-        self.activated = activated
+        self.activated = active
 
     def nome_carta(self):  # restituisce nome file es: valore_seme.jpeg
         if self._carta.valore < 11:  # se è un numero
@@ -59,13 +60,21 @@ class CardGUI:
             if not self.vuoto:  # nota che se la nuova è vuota aggiorno _carta ma non immagine e rect
                 self.get_immagine()
                 self.rect = self._immagine.get_rect()
-                self.rect.topleft = self._pos
+                self.rect.topleft = self.center_pos()
 
     def blit(self, screen):
         if self.visible and not self.vuoto:
-            screen.blit(self._immagine, self._pos)
+            screen.blit(self._immagine, self.center_pos())
 
     def check_click(self, mouse_pos):
         if self.activated and not self.vuoto:
             if self.rect.collidepoint(mouse_pos):
                 GlobalVar.player_controller.gioca_carta(self._carta)
+
+    def center_pos(self):  # restituisco una pos modificata per centrare il testo se sereve se no da la pos normale
+        width = self.dim[0]
+        if self.center:
+            pos_x = self._pos[0]
+            return pos_x - width / 2, self._pos[1]
+        else:
+            return self._pos

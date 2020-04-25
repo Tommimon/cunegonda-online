@@ -14,10 +14,10 @@ class MenuGUI:
         width, height = self.screen.get_size()
         self.w_perc = width / 100  # mi salvo misure percentuali dello schermo
         self.h_perc = height / 100
-        self.titolo = Text('Main Menu', (50 * self.w_perc, 10 * self.h_perc), bg_color=ROSSO, text_color=VERDE, center=True)
+        self.titolo = Text('Main Menu', (50 * self.w_perc, 10 * self.h_perc), 80, VERDE, ROSSO, center=True)
         self.btn_quit = Button('Quit', (50 * self.w_perc, 80 * self.h_perc), GlobalVar.player_controller.quit,
                                bg_color=VERDE, text_color=NERO, center=True)
-        self.btn_connect = Button('Connect', (50 * self.w_perc, 20 * self.h_perc), MenuGUI.switch_to_game,
+        self.btn_connect = Button('Connect', (50 * self.w_perc, 30 * self.h_perc), MenuGUI.switch_to_game,
                                   bg_color=VERDE, text_color=NERO, center=True)
 
     def display(self):

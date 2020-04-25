@@ -21,6 +21,10 @@ class Text:
 
     def _refresh(self):  # ogni volta che cambio qualcosa devo richiamarlo
         self.surface = self.font.render(self._text, self.bold, self._text_color, self._bg_color)
+        if self._bg_color[3] == 0:  # l'elemento [3] è il valore alpha del colore
+            self.surface.set_colorkey(self._bg_color)  # rende il colore trasparente
+        if self._text_color[3] == 0:
+            self.surface.set_colorkey(self._text_color)
 
     def blit(self, screen):
         if self.visible:
@@ -43,7 +47,7 @@ class Text:
         self._pos = pos
         self._refresh()
 
-    def center_pos(self):  # modifico la pos orizzontale per centrare il testo se sereve se no da la pos normale
+    def center_pos(self):  # restituisco una pos modificata per centrare il testo se sereve se no da la pos normale
         width = self.surface.get_width()
         if self.center:
             pos_x = self._pos[0]
