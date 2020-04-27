@@ -96,8 +96,8 @@ class GameGUI:
         self.calcola_storico()
         stringa_punteggio = str(self.punteggio_mio) + ': '  # per mio punteggio
         for i in range(len(self.storico)):
-            if i != 0:  # se non è primo
-                stringa_punteggio += '/ '
+            if self.storico[i] >= 0:  # se è negativo ha già il -
+                stringa_punteggio += '+'
             stringa_punteggio += str(self.storico[i]) + ' '  # aggiungo pezzo allo storico
         self.text_punteggio.set_text(stringa_punteggio)
 
