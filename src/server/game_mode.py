@@ -222,5 +222,6 @@ class GameMode:
         self.primo = self.primo_in_prima
         self.ultimo = (self.primo - 1) % 4
         self.game_state.turno.val = self.primo
+        self.game_state.seme_primo.val = Card.NESSUN_SEME
         self.dai_carte()
         self.game_state.fase_gioco.val = Fase.PASSAGGIO_CARTE
