@@ -32,6 +32,8 @@ def safe_send(messaggio, sock):
         pass
     except ConnectionAbortedError:  # occore quando provo a mandare a uno che ha chiuso
         pass
+    except BrokenPipeError:
+        pass
 
 
 restoBuffer = ''  # quello che rimane nel buffer lo metto qui
@@ -60,6 +62,8 @@ def safe_recv_var(replicators):
         except ConnectionAbortedError:
             pass
         except ConnectionResetError:
+            pass
+        except BrokenPipeError:
             pass
 
 
