@@ -5,14 +5,17 @@
 
 *Habet etiam mala fortuna levitatem. Fortasse erit, fortasse non erit*
 
-## installation
+## Installation
 ### windows or linux
 Download the right version for your OS from the release section, extract the files where ever you want and you're good to go.
+
+To join a match run the ``launcher`` executable.
+To host a match run the ``host`` executable.
 
 ### mac OS
 Currently, we don't provide any mac one file executable so installation for mac is a bit trickier.
 
-First install python on your computer from https://www.python.org/downloads/.
+First install [Python](https://www.python.org/downloads/) on your computer.
 
 Then you need to install pygame and varname:
 
@@ -22,8 +25,8 @@ pip3 install varname
 ```
 
 Now download the raw_client_code or raw_server_code from the release section and extract the files somewhere.
-To open the client run the script ``launcher.py``
-To open the server run the script ``host.py``
+To join a match run the module ``launcher.py``
+To host a match run the module ``host.py``
 You can run the python modules by navigating to the directory where you extracted the files and executing the command:
 ```sh
 python3 -m launcher.py
