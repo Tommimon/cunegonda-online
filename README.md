@@ -5,7 +5,7 @@
 
 *Habet etiam mala fortuna levitatem. Fortasse erit, fortasse non erit*
 
-## Installation
+# Installation
 ### windows or linux
 Download the right version for your OS from the release section, extract the files where ever you want and you're good to go.
 
@@ -36,7 +36,7 @@ or
 python3 -m host.py
 ```
 
-## Setup
+# Setup
 All you need to play this game is:
 - one machine with public IP address running the ``host`` process
 - 4 players running the ``launcher`` program
