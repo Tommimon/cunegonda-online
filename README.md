@@ -32,3 +32,18 @@ or
 ```sh
 python3 -m host.py
 ```
+
+## Setup
+All you need to play this game is:
+- one machine with public IP address running the ``host`` process
+- 4 players running the ``launcher`` program
+
+### Server setup
+In ``server_settings.txt``:
+Edit the server IP address (you may need the LAN address) and the port you wish to open the host process on
+
+### Client setup
+In ``client_settings.txt``:
+Edit the server IP address (has to be the public address) and the public port you are connecting to
+
+You can change other settings about the GUI in this file
