@@ -53,7 +53,7 @@ You can change other settings about the GUI in this file
 
 
 
-# _Rules_
+# Rules
 
 ## Introduction
 A match is 10 rounds long.
