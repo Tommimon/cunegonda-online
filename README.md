@@ -76,7 +76,7 @@ The round ends when each player plays his last card (each round has 13 hands).
 ## Scoring
 Each hand won adds 10 points to the winner's total regardless of the cards he gets.
 
--Hearts- are the point-removing suit, if a player wins a hand with some hearts he has to subtract to the 10 points for winning the hand the corresponding value of the card.
+_Hearts_ are the point-removing suit, if a player wins a hand with some hearts he has to subtract to the 10 points for winning the hand the corresponding value of the card.
 (i.e. K = -13 points, J = -11 points, 7 = -7 points,...)
 
 The Queen of Spades is a special card since his value is -26 points (negative 26)
