@@ -10,18 +10,18 @@
 Download the right version for your OS from the release section, extract the files where ever you want and you're good to go.
 
 ### mac OS
-Currently we don't provide any mac onefile executable so installation for mac is a bit trikyer.
+Currently, we don't provide any mac one file executable so installation for mac is a bit trickier.
 
-First of all install python on your computer from https://www.python.org/downloads/.
+First install python on your computer from https://www.python.org/downloads/.
 
-Then you nead to install pygame and varname:
+Then you need to install pygame and varname:
 
 ```sh
 pip3 install pygame
 pip3 install varname
 ```
 
-Now download the raw_client_code or raw_server_code from the release section and extract the files somewere.
+Now download the raw_client_code or raw_server_code from the release section and extract the files somewhere.
 To open the client run the script ``launcher.py``
 To open the server run the script ``host.py``
 You can run the python modules by navigating to the directory where you extracted the files and executing the command:
