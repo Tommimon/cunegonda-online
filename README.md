@@ -65,13 +65,17 @@ Before the start of the round each player has to select 3 cards from his deck th
 
 ## Round developement
 The first player choses a card to play, the game develops in a clockwise turn.
+
 All the players must play a card of the same suit as the card played (i.e. if the first played card is a diamond everyone must play a diamond).
 If a playes does not have a card of the same suit as the first he can play whichever card he wants.
+
 The first cards commands the suit, whoever played the highest card in that suit wins the hand.
+
 The round ends when each player plays his last card (each round has 13 hands).
 
 ## Scoring
 Each hand won adds 10 points to the winner's total regardless of the cards he gets.
+
 _Hearts_ are the point-removing suit, if a player wins a hand with some hearts he has to subtract to the 10 points for winning the hand the corresponding value of the card.
 (i.e. K = -13 points, J = -11 points, 7 = -7 points,...)
 
