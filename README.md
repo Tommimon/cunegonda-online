@@ -64,7 +64,7 @@ At the beginning of the round each player has 13 cards.
 Before the start of the round each player has to select 3 cards from his deck that will be passed to the player on his right.
 
 ## Round developement
-The first player choses a card to play, the game develops in a clockwise turn.
+The first player choses a card to play, the game develops in a clockwise turn. Whoever wins the hand will start the next round.
 
 All the players must play a card of the same suit as the card played (i.e. if the first played card is a diamond everyone must play a diamond).
 If a playes does not have a card of the same suit as the first he can play whichever card he wants.
