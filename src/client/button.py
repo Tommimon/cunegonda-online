@@ -13,7 +13,7 @@ class Button(Text):
         self._refresh()
 
     def _refresh(self):  # ogni volta che cambio qualcosa devo richiamarlo
-        super()._refresh()  # eredo il refresh che riguarda il testo
+        super()._refresh()  # eredito il refresh che riguarda il testo
         self.rect = self.surface.get_rect()  # aggiorno il rect che identifica la parte cliccabile
         self.rect.topleft = self.center_pos()
 
